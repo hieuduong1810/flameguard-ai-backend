@@ -1,0 +1,1420 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FlameGuard AI · System Architecture & Diagrams</title>
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:#eaf1ff;background:#0b1220;font-synthesis:none}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0}a{color:inherit}aside{position:fixed;inset:0 auto 0 0;width:274px;background:#101b2f;border-right:1px solid #263850;padding:24px 12px;overflow:auto}aside .brand{padding:9px 10px 23px}aside h1{font-size:19px;margin:4px 0 6px;color:#fff}aside p{font-size:12px;color:#8fa7c9;margin:0}aside nav{display:grid;gap:4px}aside .nav-section{font-size:10px;letter-spacing:.13em;color:#6485aa;font-weight:800;margin:16px 9px 4px}aside nav a{display:flex;text-decoration:none;gap:11px;padding:10px 9px;border-radius:10px;font-size:12px;color:#bdd0ed;line-height:1.4}aside nav a:hover{background:#1a2c48;color:#fff}aside nav a b{color:#63d7e9}main{margin-left:274px;padding:35px clamp(18px,4vw,65px)}.intro{max-width:920px;margin-bottom:32px}.eyebrow{font-size:11px;letter-spacing:.17em;color:#63d7e9;font-weight:700}.intro h1{font-size:clamp(25px,3vw,43px);margin:11px 0}.intro p{color:#b1c4e0;line-height:1.7;max-width:780px}.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.chip{border:1px solid #384a67;border-radius:30px;padding:7px 12px;font-size:11px;color:#c6d5ea}.chip.m{color:#6de2ad}.chip.s{color:#82caff}.chip.c{color:#ffc17d}.content-section-heading{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid #36506f;margin:42px 0 19px;padding-bottom:13px;scroll-margin-top:20px}.content-section-heading span{white-space:nowrap;font-size:10px;letter-spacing:.15em;color:#6ed7e8;font-weight:800}.content-section-heading h2{margin:0;font-size:23px;letter-spacing:.025em;color:#eff6ff}.diagram-card{background:#142038;border:1px solid #304560;border-radius:16px;margin:0 0 30px;overflow:hidden;scroll-margin-top:20px;box-shadow:0 14px 45px #07132355}.diagram-card header{padding:19px 24px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid #304560}.diagram-card small{color:#6ed7e8;letter-spacing:.14em;font-weight:700;font-size:10px}.diagram-card h2{font-size:18px;margin:7px 0 0;font-weight:650}.diagram-card header a{white-space:nowrap;border:1px solid #4a6d8b;color:#bdf3fa;border-radius:8px;font-size:12px;text-decoration:none;padding:10px 13px}.drawing{padding:20px;overflow:auto;background:#f6f9fe;min-height:260px}.drawing .mermaid{text-align:center;width:max-content;min-width:100%;margin:0}.drawing svg{max-width:none!important}.diagram-card details{padding:14px 24px;background:#101c30;border-top:1px solid #304560}.diagram-card summary{cursor:pointer;font-size:12px;color:#9cbfda}.source{white-space:pre;overflow:auto;font-size:11px;line-height:1.6;max-height:500px;color:#cfe2fc}footer{color:#7f96b6;font-size:12px;line-height:1.7;padding:15px 0 45px}@media(max-width:850px){aside{position:relative;width:100%;height:auto}aside nav{grid-template-columns:repeat(2,1fr)}main{margin-left:0;padding:20px}.diagram-card header{align-items:flex-start;flex-direction:column}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style></head><body>
+<aside><div class="brand"><div class="eyebrow">NASA PROJECT / SYSTEM DESIGN</div><h1>FlameGuard AI</h1><p>Architecture, database & flows<br>15 individually framed diagrams</p></div><nav><div class="nav-section">SYSTEM ARCHITECTURE</div><a href="#diagram-01"><b>01</b><span>OVERALL SYSTEM ARCHITECTURE</span></a>
+<a href="#diagram-02"><b>02</b><span>DETAILED LOGICAL COMPONENT ARCHITECTURE</span></a>
+<div class="nav-section">DATABASE / ERD</div><a href="#diagram-03"><b>03</b><span>DATABASE ERD: MUST HAVE </span></a>
+<a href="#diagram-04"><b>04</b><span>DATABASE ERD: SHOULD HAVE </span></a>
+<a href="#diagram-05"><b>05</b><span>DATABASE ERD: COULD HAVE </span></a>
+<div class="nav-section">USER NAVIGATION</div><a href="#diagram-06"><b>06</b><span>USER NAVIGATION + INFORMATION ARCHITECTURE</span></a>
+<div class="nav-section">FEATURE BREAKDOWN</div><a href="#diagram-07"><b>07</b><span>FEATURE TO DATABASE OWNERSHIP</span></a>
+<a href="#diagram-08"><b>08</b><span>RESEARCH DASHBOARD DATA + INTERACTIONS </span></a>
+<a href="#diagram-09"><b>09</b><span>EXPERIMENT EXPLORER + COMPARISON MODAL </span></a>
+<a href="#diagram-10"><b>10</b><span>MISSION SCENARIO + EVIDENCE GAPS </span></a>
+<a href="#diagram-11"><b>11</b><span>GLOBAL AI RAG + CITATION FLOW </span></a>
+<a href="#diagram-12"><b>12</b><span>NASA PSI INGESTION + CURATION PIPELINE </span></a>
+<a href="#diagram-13"><b>13</b><span>EVIDENCE CLAIM LIFECYCLE + MANY-TO-MANY PROVENANCE </span></a>
+<a href="#diagram-14"><b>14</b><span>PREDICTIVE LAB READINESS + GUARDED EXECUTION </span></a>
+<a href="#diagram-15"><b>15</b><span>IMPLEMENTATION DEPENDENCIES </span></a></nav></aside>
+<main><div class="intro"><div class="eyebrow">SYSTEM DESIGN DOCUMENTATION</div><h1>FlameGuard AI · System Architecture</h1><p>Four sections: System Architecture, Database / ERD, User Navigation and Feature Breakdown. Start with the whole system, then examine its database, navigation and individual processes. Research evidence must be verified before drawing any operational fire-safety conclusions.</p><div class="chips"><span class="chip m">M · Must Have</span><span class="chip s">S · Should Have</span><span class="chip c">C · Could Have</span><span class="chip">ERD: 21 distinct tables</span><span class="chip">Each diagram boxed + titled</span></div></div>
+<div class="content-section-heading" id="group-system-architecture"><span>SECTION 01 / 04</span><h2>SYSTEM ARCHITECTURE</h2></div>
+  <section class="diagram-card" id="diagram-01">
+    <header><div><small>SYSTEM ARCHITECTURE · DIAGRAM 01</small><h2>D01 — OVERALL SYSTEM ARCHITECTURE</h2></div><a href="01-overall-system-architecture.mmd" download>Download .mmd</a></header>
+    <div class="drawing"><pre class="mermaid">flowchart LR
+  subgraph frame[&quot;D01 — OVERALL SYSTEM ARCHITECTURE&quot;]
+    direction LR
+    subgraph frontend[&quot;REACT + VITE SPA&quot;]
+      client[&quot;Landing + Workspace [M]&quot;]
+      research[&quot;Dashboard + Explorer + Mission [M]&quot;]
+      overlays[&quot;Compare modal + AI dock [S]&quot;]
+      predictionUi[&quot;Predictive panel [C]&quot;]
+    end
+    subgraph backend[&quot;BACKEND — LOGICAL SERVICES&quot;]
+      api[&quot;FastAPI REST + validation [M]&quot;]
+      ingestion[&quot;PSI ingestion + curation worker [S]&quot;]
+      predictionSvc[&quot;Validated prediction service [C]&quot;]
+    end
+    subgraph storage[&quot;PERSISTENCE&quot;]
+      postgres[(&quot;PostgreSQL: catalog, runs, scenarios, claims [M]&quot;)]
+      objectStore[(&quot;Source files + raw assets [M]&quot;)]
+      vectorStore[(&quot;Document chunks + vector index [S]&quot;)]
+      modelStore[(&quot;Versioned models + training runs [C]&quot;)]
+    end
+    subgraph partners[&quot;EXTERNAL SOURCES&quot;]
+      nasa[&quot;NASA PSI repository [M]&quot;]
+      llm[&quot;LLM provider for grounded RAG [S]&quot;]
+    end
+    client --&gt; api
+    research --&gt; api
+    overlays --&gt; api
+    predictionUi -.-&gt; predictionSvc
+    api --&gt; postgres
+    api --&gt; objectStore
+    api --&gt; vectorStore
+    api -.-&gt; llm
+    ingestion --&gt; postgres
+    ingestion --&gt; objectStore
+    ingestion --&gt; vectorStore
+    ingestion -.-&gt; nasa
+    predictionSvc --&gt; modelStore
+    predictionSvc --&gt; postgres
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style frontend fill:#E0F2FE,stroke:#38BDF8
+  style backend fill:#F3E8FF,stroke:#A78BFA
+  style storage fill:#DCFCE7,stroke:#4ADE80
+  style partners fill:#FFF7ED,stroke:#FB923C
+</pre></div>
+    <details><summary>View / copy Mermaid source</summary><pre class="source">flowchart LR
+  subgraph frame[&quot;D01 — OVERALL SYSTEM ARCHITECTURE&quot;]
+    direction LR
+    subgraph frontend[&quot;REACT + VITE SPA&quot;]
+      client[&quot;Landing + Workspace [M]&quot;]
+      research[&quot;Dashboard + Explorer + Mission [M]&quot;]
+      overlays[&quot;Compare modal + AI dock [S]&quot;]
+      predictionUi[&quot;Predictive panel [C]&quot;]
+    end
+    subgraph backend[&quot;BACKEND — LOGICAL SERVICES&quot;]
+      api[&quot;FastAPI REST + validation [M]&quot;]
+      ingestion[&quot;PSI ingestion + curation worker [S]&quot;]
+      predictionSvc[&quot;Validated prediction service [C]&quot;]
+    end
+    subgraph storage[&quot;PERSISTENCE&quot;]
+      postgres[(&quot;PostgreSQL: catalog, runs, scenarios, claims [M]&quot;)]
+      objectStore[(&quot;Source files + raw assets [M]&quot;)]
+      vectorStore[(&quot;Document chunks + vector index [S]&quot;)]
+      modelStore[(&quot;Versioned models + training runs [C]&quot;)]
+    end
+    subgraph partners[&quot;EXTERNAL SOURCES&quot;]
+      nasa[&quot;NASA PSI repository [M]&quot;]
+      llm[&quot;LLM provider for grounded RAG [S]&quot;]
+    end
+    client --&gt; api
+    research --&gt; api
+    overlays --&gt; api
+    predictionUi -.-&gt; predictionSvc
+    api --&gt; postgres
+    api --&gt; objectStore
+    api --&gt; vectorStore
+    api -.-&gt; llm
+    ingestion --&gt; postgres
+    ingestion --&gt; objectStore
+    ingestion --&gt; vectorStore
+    ingestion -.-&gt; nasa
+    predictionSvc --&gt; modelStore
+    predictionSvc --&gt; postgres
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style frontend fill:#E0F2FE,stroke:#38BDF8
+  style backend fill:#F3E8FF,stroke:#A78BFA
+  style storage fill:#DCFCE7,stroke:#4ADE80
+  style partners fill:#FFF7ED,stroke:#FB923C
+</pre></details>
+  </section>
+
+  <section class="diagram-card" id="diagram-02">
+    <header><div><small>SYSTEM ARCHITECTURE · DIAGRAM 02</small><h2>D02 — DETAILED LOGICAL COMPONENT ARCHITECTURE</h2></div><a href="02-detailed-component-architecture.mmd" download>Download .mmd</a></header>
+    <div class="drawing"><pre class="mermaid">flowchart LR
+  subgraph frame[&quot;D02 — DETAILED LOGICAL COMPONENT ARCHITECTURE&quot;]
+    direction LR
+    subgraph ui[&quot;FRONTEND — REACT / VITE SPA&quot;]
+      dashboardUi[&quot;Dashboard + catalog charts [M]&quot;]
+      explorerUi[&quot;Explorer + detail + Compare modal [M/S]&quot;]
+      missionUi[&quot;Mission form + inline Evidence / Lab [M/C]&quot;]
+      assistantUi[&quot;Global AI chat dock [S]&quot;]
+    end
+    subgraph apiLayer[&quot;BACKEND — FASTAPI MODULAR MONOLITH&quot;]
+      api[&quot;REST routes + input validation [M]&quot;]
+      catalogApi[&quot;Catalog + test-run queries [M]&quot;]
+      scenarioApi[&quot;Scenario matching + compare [M/S]&quot;]
+      ragApi[&quot;RAG orchestration + citation gateway [S]&quot;]
+      importWorker[&quot;PSI import + curator review [M/S]&quot;]
+      modelAdapter[&quot;Prediction adapter [C]&quot;]
+    end
+    subgraph logic[&quot;EVIDENCE INTELLIGENCE — RULES + AI&quot;]
+      ranking[&quot;Explainable relevance ranking [M]&quot;]
+      gaps[&quot;Condition gap detection [M]&quot;]
+      grounding[&quot;Source retrieval + citation validation [S]&quot;]
+      modelCheck[&quot;Model scope + uncertainty checks [C]&quot;]
+    end
+    subgraph persistence[&quot;DATA — NORMALIZED &amp; TRACEABLE&quot;]
+      catalogDb[(&quot;INVESTIGATION + TAG [M/S]&quot;)]
+      runDb[(&quot;TEST_RUN + CONDITION + MEASUREMENT [M]&quot;)]
+      evidenceDb[(&quot;SOURCE_DOCUMENT + CLAIM + CLAIM_SOURCE [M]&quot;)]
+      scenarioDb[(&quot;SCENARIO + SCENARIO_MATCH + MATCH_DIMENSION [M/S]&quot;)]
+      searchDb[(&quot;Document chunks + semantic index [S]&quot;)]
+      modelDb[(&quot;Model versions + predictions [C]&quot;)]
+    end
+    subgraph external[&quot;EXTERNAL + SOURCE INGESTION&quot;]
+      nasa[&quot;NASA PSI public repository&quot;]
+      llm[&quot;LLM provider [S]&quot;]
+    end
+    dashboardUi --&gt; api
+    explorerUi --&gt; api
+    missionUi --&gt; api
+    assistantUi --&gt; api
+    api --&gt; catalogApi
+    api --&gt; scenarioApi
+    api --&gt; ragApi
+    api -.-&gt; modelAdapter
+    catalogApi --&gt; catalogDb
+    catalogApi --&gt; runDb
+    scenarioApi --&gt; ranking
+    scenarioApi --&gt; gaps
+    ranking --&gt; scenarioDb
+    gaps --&gt; scenarioDb
+    gaps --&gt; runDb
+    ragApi --&gt; grounding
+    grounding --&gt; evidenceDb
+    grounding --&gt; searchDb
+    ragApi -.-&gt; llm
+    importWorker -.-&gt; nasa
+    importWorker --&gt; catalogDb
+    importWorker --&gt; runDb
+    importWorker --&gt; evidenceDb
+    importWorker --&gt; searchDb
+    modelAdapter -.-&gt; modelCheck
+    modelCheck -.-&gt; modelDb
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style ui fill:#DBEAFE,stroke:#60A5FA
+  style apiLayer fill:#EDE9FE,stroke:#A78BFA
+  style logic fill:#F5E8FF,stroke:#C084FC
+  style persistence fill:#DCFCE7,stroke:#4ADE80
+  style external fill:#FFF7ED,stroke:#FB923C
+</pre></div>
+    <details><summary>View / copy Mermaid source</summary><pre class="source">flowchart LR
+  subgraph frame[&quot;D02 — DETAILED LOGICAL COMPONENT ARCHITECTURE&quot;]
+    direction LR
+    subgraph ui[&quot;FRONTEND — REACT / VITE SPA&quot;]
+      dashboardUi[&quot;Dashboard + catalog charts [M]&quot;]
+      explorerUi[&quot;Explorer + detail + Compare modal [M/S]&quot;]
+      missionUi[&quot;Mission form + inline Evidence / Lab [M/C]&quot;]
+      assistantUi[&quot;Global AI chat dock [S]&quot;]
+    end
+    subgraph apiLayer[&quot;BACKEND — FASTAPI MODULAR MONOLITH&quot;]
+      api[&quot;REST routes + input validation [M]&quot;]
+      catalogApi[&quot;Catalog + test-run queries [M]&quot;]
+      scenarioApi[&quot;Scenario matching + compare [M/S]&quot;]
+      ragApi[&quot;RAG orchestration + citation gateway [S]&quot;]
+      importWorker[&quot;PSI import + curator review [M/S]&quot;]
+      modelAdapter[&quot;Prediction adapter [C]&quot;]
+    end
+    subgraph logic[&quot;EVIDENCE INTELLIGENCE — RULES + AI&quot;]
+      ranking[&quot;Explainable relevance ranking [M]&quot;]
+      gaps[&quot;Condition gap detection [M]&quot;]
+      grounding[&quot;Source retrieval + citation validation [S]&quot;]
+      modelCheck[&quot;Model scope + uncertainty checks [C]&quot;]
+    end
+    subgraph persistence[&quot;DATA — NORMALIZED &amp; TRACEABLE&quot;]
+      catalogDb[(&quot;INVESTIGATION + TAG [M/S]&quot;)]
+      runDb[(&quot;TEST_RUN + CONDITION + MEASUREMENT [M]&quot;)]
+      evidenceDb[(&quot;SOURCE_DOCUMENT + CLAIM + CLAIM_SOURCE [M]&quot;)]
+      scenarioDb[(&quot;SCENARIO + SCENARIO_MATCH + MATCH_DIMENSION [M/S]&quot;)]
+      searchDb[(&quot;Document chunks + semantic index [S]&quot;)]
+      modelDb[(&quot;Model versions + predictions [C]&quot;)]
+    end
+    subgraph external[&quot;EXTERNAL + SOURCE INGESTION&quot;]
+      nasa[&quot;NASA PSI public repository&quot;]
+      llm[&quot;LLM provider [S]&quot;]
+    end
+    dashboardUi --&gt; api
+    explorerUi --&gt; api
+    missionUi --&gt; api
+    assistantUi --&gt; api
+    api --&gt; catalogApi
+    api --&gt; scenarioApi
+    api --&gt; ragApi
+    api -.-&gt; modelAdapter
+    catalogApi --&gt; catalogDb
+    catalogApi --&gt; runDb
+    scenarioApi --&gt; ranking
+    scenarioApi --&gt; gaps
+    ranking --&gt; scenarioDb
+    gaps --&gt; scenarioDb
+    gaps --&gt; runDb
+    ragApi --&gt; grounding
+    grounding --&gt; evidenceDb
+    grounding --&gt; searchDb
+    ragApi -.-&gt; llm
+    importWorker -.-&gt; nasa
+    importWorker --&gt; catalogDb
+    importWorker --&gt; runDb
+    importWorker --&gt; evidenceDb
+    importWorker --&gt; searchDb
+    modelAdapter -.-&gt; modelCheck
+    modelCheck -.-&gt; modelDb
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style ui fill:#DBEAFE,stroke:#60A5FA
+  style apiLayer fill:#EDE9FE,stroke:#A78BFA
+  style logic fill:#F5E8FF,stroke:#C084FC
+  style persistence fill:#DCFCE7,stroke:#4ADE80
+  style external fill:#FFF7ED,stroke:#FB923C
+</pre></details>
+  </section>
+<div class="content-section-heading" id="group-database-erd"><span>SECTION 02 / 04</span><h2>DATABASE / ERD</h2></div>
+  <section class="diagram-card" id="diagram-03">
+    <header><div><small>DATABASE / ERD · DIAGRAM 03</small><h2>D03 — DATABASE ERD: MUST HAVE | Core Research + Evidence + Scenario</h2></div><a href="03-database-must-have-erd.mmd" download>Download .mmd</a></header>
+    <div class="drawing"><pre class="mermaid">erDiagram
+  %% D03 — DATABASE ERD: MUST HAVE | Core Research + Evidence + Scenario
+  direction LR
+  INVESTIGATION ||--o{ TEST_RUN : contains
+  INVESTIGATION ||--o{ SOURCE_DOCUMENT : documents
+  TEST_RUN ||--o{ TEST_CONDITION : specifies
+  TEST_RUN ||--o{ MEASUREMENT : records
+  EVIDENCE_CLAIM ||--o{ CLAIM_SOURCE : backed_by
+  SOURCE_DOCUMENT ||--o{ CLAIM_SOURCE : cites
+  TEST_RUN o|..o{ CLAIM_SOURCE : optional_run
+  SCENARIO ||--o{ SCENARIO_MATCH : evaluates
+  TEST_RUN ||--o{ SCENARIO_MATCH : compared_to
+
+  INVESTIGATION {
+    uuid id PK
+    string psi_id UK
+    string title
+    string research_purpose
+    string platform
+  }
+  TEST_RUN {
+    uuid id PK
+    uuid investigation_id FK
+    string external_run_key
+    string material_type
+    string sample_geometry
+    string gravity
+  }
+  TEST_CONDITION {
+    uuid id PK
+    uuid test_run_id FK
+    string variable
+    decimal value_numeric
+    string value_text
+    string unit
+    string data_status
+  }
+  MEASUREMENT {
+    uuid id PK
+    uuid test_run_id FK
+    string observable
+    decimal measured_value
+    string unit
+    string raw_asset_ref
+    decimal uncertainty
+  }
+  SOURCE_DOCUMENT {
+    uuid id PK
+    uuid investigation_id FK
+    string source_url
+    string doi
+    string document_type
+    string version
+    string ingestion_status
+  }
+  EVIDENCE_CLAIM {
+    uuid id PK
+    string claim_text
+    string evidence_status
+    string review_status
+    string limitation
+    datetime created_at
+  }
+  CLAIM_SOURCE {
+    uuid id PK
+    uuid claim_id FK
+    uuid source_document_id FK
+    uuid test_run_id FK &quot;Nullable&quot;
+    string source_locator
+    string source_excerpt
+  }
+  SCENARIO {
+    uuid id PK
+    string name
+    string environment
+    string gravity
+    decimal oxygen_pct
+    decimal pressure_psi
+    string material
+    string ventilation
+  }
+  SCENARIO_MATCH {
+    uuid id PK
+    uuid scenario_id FK
+    uuid test_run_id FK
+    string match_status
+    decimal score
+    string explanation
+    string engine_version
+  }
+</pre></div>
+    <details><summary>View / copy Mermaid source</summary><pre class="source">erDiagram
+  %% D03 — DATABASE ERD: MUST HAVE | Core Research + Evidence + Scenario
+  direction LR
+  INVESTIGATION ||--o{ TEST_RUN : contains
+  INVESTIGATION ||--o{ SOURCE_DOCUMENT : documents
+  TEST_RUN ||--o{ TEST_CONDITION : specifies
+  TEST_RUN ||--o{ MEASUREMENT : records
+  EVIDENCE_CLAIM ||--o{ CLAIM_SOURCE : backed_by
+  SOURCE_DOCUMENT ||--o{ CLAIM_SOURCE : cites
+  TEST_RUN o|..o{ CLAIM_SOURCE : optional_run
+  SCENARIO ||--o{ SCENARIO_MATCH : evaluates
+  TEST_RUN ||--o{ SCENARIO_MATCH : compared_to
+
+  INVESTIGATION {
+    uuid id PK
+    string psi_id UK
+    string title
+    string research_purpose
+    string platform
+  }
+  TEST_RUN {
+    uuid id PK
+    uuid investigation_id FK
+    string external_run_key
+    string material_type
+    string sample_geometry
+    string gravity
+  }
+  TEST_CONDITION {
+    uuid id PK
+    uuid test_run_id FK
+    string variable
+    decimal value_numeric
+    string value_text
+    string unit
+    string data_status
+  }
+  MEASUREMENT {
+    uuid id PK
+    uuid test_run_id FK
+    string observable
+    decimal measured_value
+    string unit
+    string raw_asset_ref
+    decimal uncertainty
+  }
+  SOURCE_DOCUMENT {
+    uuid id PK
+    uuid investigation_id FK
+    string source_url
+    string doi
+    string document_type
+    string version
+    string ingestion_status
+  }
+  EVIDENCE_CLAIM {
+    uuid id PK
+    string claim_text
+    string evidence_status
+    string review_status
+    string limitation
+    datetime created_at
+  }
+  CLAIM_SOURCE {
+    uuid id PK
+    uuid claim_id FK
+    uuid source_document_id FK
+    uuid test_run_id FK &quot;Nullable&quot;
+    string source_locator
+    string source_excerpt
+  }
+  SCENARIO {
+    uuid id PK
+    string name
+    string environment
+    string gravity
+    decimal oxygen_pct
+    decimal pressure_psi
+    string material
+    string ventilation
+  }
+  SCENARIO_MATCH {
+    uuid id PK
+    uuid scenario_id FK
+    uuid test_run_id FK
+    string match_status
+    decimal score
+    string explanation
+    string engine_version
+  }
+</pre></details>
+  </section>
+
+  <section class="diagram-card" id="diagram-04">
+    <header><div><small>DATABASE / ERD · DIAGRAM 04</small><h2>D04 — DATABASE ERD: SHOULD HAVE | Tags + Gap Audit + RAG</h2></div><a href="04-database-should-have-erd.mmd" download>Download .mmd</a></header>
+    <div class="drawing"><pre class="mermaid">erDiagram
+  %% D04 — DATABASE ERD: SHOULD HAVE | Tags + Gap Audit + RAG
+  direction LR
+  INVESTIGATION ||--o{ INVESTIGATION_TAG : classified_by
+  TAG ||--o{ INVESTIGATION_TAG : applied_to
+  SCENARIO_MATCH ||--o{ MATCH_DIMENSION : explains
+  SOURCE_DOCUMENT ||--o{ DOCUMENT_CHUNK : contains
+  CHAT_SESSION ||--o{ CHAT_MESSAGE : contains
+  CHAT_MESSAGE ||--o{ MESSAGE_CITATION : references
+  SOURCE_DOCUMENT ||--o{ MESSAGE_CITATION : cited_in
+  INVESTIGATION o|..o{ CHAT_SESSION : optional_context
+
+  INVESTIGATION {
+    uuid id PK
+    string psi_id UK
+  }
+  TAG {
+    uuid id PK
+    string slug UK
+    string label
+    string category
+  }
+  INVESTIGATION_TAG {
+    uuid id PK
+    uuid investigation_id FK
+    uuid tag_id FK
+  }
+  SCENARIO_MATCH {
+    uuid id PK
+    uuid scenario_id FK
+    uuid test_run_id FK
+  }
+  MATCH_DIMENSION {
+    uuid id PK
+    uuid scenario_match_id FK
+    string variable
+    string match_status
+    string gap_reason
+  }
+  SOURCE_DOCUMENT {
+    uuid id PK
+    string source_url
+  }
+  DOCUMENT_CHUNK {
+    uuid id PK
+    uuid source_document_id FK
+    int chunk_index
+    string source_locator
+    string chunk_text
+    string embedding_ref
+  }
+  CHAT_SESSION {
+    uuid id PK
+    uuid investigation_id FK &quot;Nullable&quot;
+    string title
+    datetime created_at
+  }
+  CHAT_MESSAGE {
+    uuid id PK
+    uuid chat_session_id FK
+    string role
+    string body
+    datetime created_at
+  }
+  MESSAGE_CITATION {
+    uuid id PK
+    uuid chat_message_id FK
+    uuid source_document_id FK
+    string source_locator
+  }
+</pre></div>
+    <details><summary>View / copy Mermaid source</summary><pre class="source">erDiagram
+  %% D04 — DATABASE ERD: SHOULD HAVE | Tags + Gap Audit + RAG
+  direction LR
+  INVESTIGATION ||--o{ INVESTIGATION_TAG : classified_by
+  TAG ||--o{ INVESTIGATION_TAG : applied_to
+  SCENARIO_MATCH ||--o{ MATCH_DIMENSION : explains
+  SOURCE_DOCUMENT ||--o{ DOCUMENT_CHUNK : contains
+  CHAT_SESSION ||--o{ CHAT_MESSAGE : contains
+  CHAT_MESSAGE ||--o{ MESSAGE_CITATION : references
+  SOURCE_DOCUMENT ||--o{ MESSAGE_CITATION : cited_in
+  INVESTIGATION o|..o{ CHAT_SESSION : optional_context
+
+  INVESTIGATION {
+    uuid id PK
+    string psi_id UK
+  }
+  TAG {
+    uuid id PK
+    string slug UK
+    string label
+    string category
+  }
+  INVESTIGATION_TAG {
+    uuid id PK
+    uuid investigation_id FK
+    uuid tag_id FK
+  }
+  SCENARIO_MATCH {
+    uuid id PK
+    uuid scenario_id FK
+    uuid test_run_id FK
+  }
+  MATCH_DIMENSION {
+    uuid id PK
+    uuid scenario_match_id FK
+    string variable
+    string match_status
+    string gap_reason
+  }
+  SOURCE_DOCUMENT {
+    uuid id PK
+    string source_url
+  }
+  DOCUMENT_CHUNK {
+    uuid id PK
+    uuid source_document_id FK
+    int chunk_index
+    string source_locator
+    string chunk_text
+    string embedding_ref
+  }
+  CHAT_SESSION {
+    uuid id PK
+    uuid investigation_id FK &quot;Nullable&quot;
+    string title
+    datetime created_at
+  }
+  CHAT_MESSAGE {
+    uuid id PK
+    uuid chat_session_id FK
+    string role
+    string body
+    datetime created_at
+  }
+  MESSAGE_CITATION {
+    uuid id PK
+    uuid chat_message_id FK
+    uuid source_document_id FK
+    string source_locator
+  }
+</pre></details>
+  </section>
+
+  <section class="diagram-card" id="diagram-05">
+    <header><div><small>DATABASE / ERD · DIAGRAM 05</small><h2>D05 — DATABASE ERD: COULD HAVE | Prediction + Ingestion Operations</h2></div><a href="05-database-could-have-erd.mmd" download>Download .mmd</a></header>
+    <div class="drawing"><pre class="mermaid">erDiagram
+  %% D05 — DATABASE ERD: COULD HAVE | Prediction + Ingestion Operations
+  direction LR
+  MODEL_VERSION ||--o{ MODEL_TRAINING_RUN : trained_in
+  MODEL_VERSION ||--o{ PREDICTION_RESULT : generates
+  SCENARIO ||--o{ PREDICTION_RESULT : requested_for
+  INGESTION_JOB ||--o{ IMPORT_ISSUE : reports
+
+  SCENARIO {
+    uuid id PK
+    decimal oxygen_pct
+    decimal pressure_psi
+  }
+  MODEL_VERSION {
+    uuid id PK
+    string model_name
+    string version
+    string validation_status
+    string applicability_domain
+  }
+  MODEL_TRAINING_RUN {
+    uuid id PK
+    uuid model_version_id FK
+    string training_dataset_ref
+    string metrics_ref
+    datetime trained_at
+  }
+  PREDICTION_RESULT {
+    uuid id PK
+    uuid scenario_id FK
+    uuid model_version_id FK
+    string predicted_observable
+    decimal predicted_value
+    string unit
+    decimal uncertainty
+    string applicability_status
+  }
+  INGESTION_JOB {
+    uuid id PK
+    string source_uri
+    string status
+    datetime started_at
+    datetime completed_at
+  }
+  IMPORT_ISSUE {
+    uuid id PK
+    uuid ingestion_job_id FK
+    string severity
+    string field_name
+    string explanation
+    string review_status
+  }
+</pre></div>
+    <details><summary>View / copy Mermaid source</summary><pre class="source">erDiagram
+  %% D05 — DATABASE ERD: COULD HAVE | Prediction + Ingestion Operations
+  direction LR
+  MODEL_VERSION ||--o{ MODEL_TRAINING_RUN : trained_in
+  MODEL_VERSION ||--o{ PREDICTION_RESULT : generates
+  SCENARIO ||--o{ PREDICTION_RESULT : requested_for
+  INGESTION_JOB ||--o{ IMPORT_ISSUE : reports
+
+  SCENARIO {
+    uuid id PK
+    decimal oxygen_pct
+    decimal pressure_psi
+  }
+  MODEL_VERSION {
+    uuid id PK
+    string model_name
+    string version
+    string validation_status
+    string applicability_domain
+  }
+  MODEL_TRAINING_RUN {
+    uuid id PK
+    uuid model_version_id FK
+    string training_dataset_ref
+    string metrics_ref
+    datetime trained_at
+  }
+  PREDICTION_RESULT {
+    uuid id PK
+    uuid scenario_id FK
+    uuid model_version_id FK
+    string predicted_observable
+    decimal predicted_value
+    string unit
+    decimal uncertainty
+    string applicability_status
+  }
+  INGESTION_JOB {
+    uuid id PK
+    string source_uri
+    string status
+    datetime started_at
+    datetime completed_at
+  }
+  IMPORT_ISSUE {
+    uuid id PK
+    uuid ingestion_job_id FK
+    string severity
+    string field_name
+    string explanation
+    string review_status
+  }
+</pre></details>
+  </section>
+<div class="content-section-heading" id="group-user-navigation"><span>SECTION 03 / 04</span><h2>USER NAVIGATION</h2></div>
+  <section class="diagram-card" id="diagram-06">
+    <header><div><small>USER NAVIGATION · DIAGRAM 06</small><h2>D06 — USER NAVIGATION + INFORMATION ARCHITECTURE</h2></div><a href="06-user-navigation.mmd" download>Download .mmd</a></header>
+    <div class="drawing"><pre class="mermaid">flowchart TB
+  subgraph frame[&quot;D06 — USER NAVIGATION + INFORMATION ARCHITECTURE&quot;]
+    direction TB
+    landing([&quot;Landing page /&quot;])
+    sections[&quot;Science / Platform / Evidence sections&quot;]
+    dashboard[&quot;Research Dashboard /dashboard [M]&quot;]
+    explorer[&quot;Experiment Explorer /explorer [M]&quot;]
+    detail[&quot;Investigation Detail /explorer/:id [M]&quot;]
+    compare[&quot;Comparison modal within Explorer [S]&quot;]
+    mission[&quot;Mission Scenario /mission [M]&quot;]
+    evidence[&quot;Inline evidence results [M]&quot;]
+    prediction[&quot;Inline Predictive Lab [C]&quot;]
+    assistant[&quot;Floating AI assistant across pages [S]&quot;]
+    landing --&gt;|&quot;Nav click: smooth scroll&quot;| sections
+    landing --&gt;|&quot;Open workspace&quot;| dashboard
+    dashboard --&gt; explorer
+    dashboard --&gt; mission
+    explorer --&gt;|&quot;Select row&quot;| detail
+    detail --&gt;|&quot;Back&quot;| explorer
+    detail --&gt;|&quot;Compare study&quot;| explorer
+    explorer --&gt;|&quot;Select 2+ then Compare&quot;| compare
+    compare --&gt;|&quot;Close overlay&quot;| explorer
+    mission --&gt;|&quot;Analyze NASA evidence&quot;| evidence
+    mission --&gt;|&quot;Predictive Lab&quot;| prediction
+    evidence --&gt;|&quot;Switch panel&quot;| prediction
+    prediction --&gt;|&quot;Switch panel&quot;| evidence
+    detail -.-&gt; assistant
+    dashboard -.-&gt; assistant
+    explorer -.-&gt; assistant
+    mission -.-&gt; assistant
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style landing fill:#DBEAFE,stroke:#60A5FA
+  style compare fill:#EDE9FE,stroke:#A78BFA
+  style assistant fill:#EDE9FE,stroke:#A78BFA
+  style prediction fill:#FEF3C7,stroke:#F59E0B
+</pre></div>
+    <details><summary>View / copy Mermaid source</summary><pre class="source">flowchart TB
+  subgraph frame[&quot;D06 — USER NAVIGATION + INFORMATION ARCHITECTURE&quot;]
+    direction TB
+    landing([&quot;Landing page /&quot;])
+    sections[&quot;Science / Platform / Evidence sections&quot;]
+    dashboard[&quot;Research Dashboard /dashboard [M]&quot;]
+    explorer[&quot;Experiment Explorer /explorer [M]&quot;]
+    detail[&quot;Investigation Detail /explorer/:id [M]&quot;]
+    compare[&quot;Comparison modal within Explorer [S]&quot;]
+    mission[&quot;Mission Scenario /mission [M]&quot;]
+    evidence[&quot;Inline evidence results [M]&quot;]
+    prediction[&quot;Inline Predictive Lab [C]&quot;]
+    assistant[&quot;Floating AI assistant across pages [S]&quot;]
+    landing --&gt;|&quot;Nav click: smooth scroll&quot;| sections
+    landing --&gt;|&quot;Open workspace&quot;| dashboard
+    dashboard --&gt; explorer
+    dashboard --&gt; mission
+    explorer --&gt;|&quot;Select row&quot;| detail
+    detail --&gt;|&quot;Back&quot;| explorer
+    detail --&gt;|&quot;Compare study&quot;| explorer
+    explorer --&gt;|&quot;Select 2+ then Compare&quot;| compare
+    compare --&gt;|&quot;Close overlay&quot;| explorer
+    mission --&gt;|&quot;Analyze NASA evidence&quot;| evidence
+    mission --&gt;|&quot;Predictive Lab&quot;| prediction
+    evidence --&gt;|&quot;Switch panel&quot;| prediction
+    prediction --&gt;|&quot;Switch panel&quot;| evidence
+    detail -.-&gt; assistant
+    dashboard -.-&gt; assistant
+    explorer -.-&gt; assistant
+    mission -.-&gt; assistant
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style landing fill:#DBEAFE,stroke:#60A5FA
+  style compare fill:#EDE9FE,stroke:#A78BFA
+  style assistant fill:#EDE9FE,stroke:#A78BFA
+  style prediction fill:#FEF3C7,stroke:#F59E0B
+</pre></details>
+  </section>
+<div class="content-section-heading" id="group-feature-breakdown"><span>SECTION 04 / 04</span><h2>FEATURE BREAKDOWN</h2></div>
+  <section class="diagram-card" id="diagram-07">
+    <header><div><small>FEATURE BREAKDOWN · DIAGRAM 07</small><h2>D07 — FEATURE TO DATABASE OWNERSHIP</h2></div><a href="07-feature-to-database-map.mmd" download>Download .mmd</a></header>
+    <div class="drawing"><pre class="mermaid">flowchart LR
+  subgraph frame[&quot;D07 — FEATURE TO DATABASE OWNERSHIP&quot;]
+    direction LR
+    subgraph features[&quot;USER FEATURES&quot;]
+      dashboard[&quot;Dashboard analytics [M]&quot;]
+      catalog[&quot;Explorer + detail + compare [M/S]&quot;]
+      mission[&quot;Scenario evidence + gaps [M]&quot;]
+      chat[&quot;Contextual RAG [S]&quot;]
+      predictive[&quot;Predictive Lab [C]&quot;]
+    end
+    subgraph tables[&quot;RELATIONAL CORE&quot;]
+      investigation[(&quot;INVESTIGATION + TAG [M/S]&quot;)]
+      runData[(&quot;TEST_RUN + CONDITION + MEASUREMENT [M]&quot;)]
+      sourceData[(&quot;SOURCE_DOCUMENT + CLAIM + CLAIM_SOURCE [M]&quot;)]
+      scenarioData[(&quot;SCENARIO + SCENARIO_MATCH [M]&quot;)]
+      chatData[(&quot;CHAT_SESSION + MESSAGE + CITATION [S]&quot;)]
+      modelData[(&quot;MODEL_VERSION + PREDICTION_RESULT [C]&quot;)]
+    end
+    dashboard --&gt; investigation
+    dashboard --&gt; sourceData
+    catalog --&gt; investigation
+    catalog --&gt; runData
+    catalog --&gt; sourceData
+    mission --&gt; scenarioData
+    mission --&gt; runData
+    mission --&gt; sourceData
+    chat --&gt; chatData
+    chat --&gt; sourceData
+    predictive --&gt; modelData
+    predictive --&gt; scenarioData
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style features fill:#DBEAFE,stroke:#60A5FA
+  style tables fill:#DCFCE7,stroke:#4ADE80
+</pre></div>
+    <details><summary>View / copy Mermaid source</summary><pre class="source">flowchart LR
+  subgraph frame[&quot;D07 — FEATURE TO DATABASE OWNERSHIP&quot;]
+    direction LR
+    subgraph features[&quot;USER FEATURES&quot;]
+      dashboard[&quot;Dashboard analytics [M]&quot;]
+      catalog[&quot;Explorer + detail + compare [M/S]&quot;]
+      mission[&quot;Scenario evidence + gaps [M]&quot;]
+      chat[&quot;Contextual RAG [S]&quot;]
+      predictive[&quot;Predictive Lab [C]&quot;]
+    end
+    subgraph tables[&quot;RELATIONAL CORE&quot;]
+      investigation[(&quot;INVESTIGATION + TAG [M/S]&quot;)]
+      runData[(&quot;TEST_RUN + CONDITION + MEASUREMENT [M]&quot;)]
+      sourceData[(&quot;SOURCE_DOCUMENT + CLAIM + CLAIM_SOURCE [M]&quot;)]
+      scenarioData[(&quot;SCENARIO + SCENARIO_MATCH [M]&quot;)]
+      chatData[(&quot;CHAT_SESSION + MESSAGE + CITATION [S]&quot;)]
+      modelData[(&quot;MODEL_VERSION + PREDICTION_RESULT [C]&quot;)]
+    end
+    dashboard --&gt; investigation
+    dashboard --&gt; sourceData
+    catalog --&gt; investigation
+    catalog --&gt; runData
+    catalog --&gt; sourceData
+    mission --&gt; scenarioData
+    mission --&gt; runData
+    mission --&gt; sourceData
+    chat --&gt; chatData
+    chat --&gt; sourceData
+    predictive --&gt; modelData
+    predictive --&gt; scenarioData
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style features fill:#DBEAFE,stroke:#60A5FA
+  style tables fill:#DCFCE7,stroke:#4ADE80
+</pre></details>
+  </section>
+
+  <section class="diagram-card" id="diagram-08">
+    <header><div><small>FEATURE BREAKDOWN · DIAGRAM 08</small><h2>D08 — RESEARCH DASHBOARD DATA + INTERACTIONS | Must Have</h2></div><a href="08-research-dashboard.mmd" download>Download .mmd</a></header>
+    <div class="drawing"><pre class="mermaid">flowchart TB
+  subgraph frame[&quot;D08 — RESEARCH DASHBOARD DATA + INTERACTIONS | Must Have&quot;]
+    direction TB
+    load([&quot;Open Research Dashboard&quot;])
+    catalog[(&quot;Curated INVESTIGATION catalog&quot;)]
+    source[(&quot;SOURCE_DOCUMENT linkage status&quot;)]
+    aggregate[&quot;Aggregate catalog metadata&quot;]
+    cards[&quot;Counters + research distribution + source coverage&quot;]
+    flame[&quot;Conceptual Earth / Lunar / Micro flame UI&quot;]
+    filter[&quot;Click research focus segment&quot;]
+    detail[&quot;Click featured study&quot;]
+    mission[&quot;Explore mission scenario&quot;]
+    warning[&quot;Data caveat: not flame-risk measurements&quot;]
+    load --&gt; aggregate
+    catalog --&gt; aggregate
+    source --&gt; aggregate
+    aggregate --&gt; cards
+    load --&gt; flame
+    cards --&gt; filter
+    filter --&gt;|&quot;Purpose query&quot;| explorer[&quot;Explorer filtered catalog&quot;]
+    cards --&gt; detail
+    detail --&gt; study[&quot;Investigation Detail&quot;]
+    flame --&gt; warning
+    cards --&gt; warning
+    load --&gt; mission
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style flame fill:#DBEAFE,stroke:#60A5FA
+  style warning fill:#FEF3C7,stroke:#F59E0B
+</pre></div>
+    <details><summary>View / copy Mermaid source</summary><pre class="source">flowchart TB
+  subgraph frame[&quot;D08 — RESEARCH DASHBOARD DATA + INTERACTIONS | Must Have&quot;]
+    direction TB
+    load([&quot;Open Research Dashboard&quot;])
+    catalog[(&quot;Curated INVESTIGATION catalog&quot;)]
+    source[(&quot;SOURCE_DOCUMENT linkage status&quot;)]
+    aggregate[&quot;Aggregate catalog metadata&quot;]
+    cards[&quot;Counters + research distribution + source coverage&quot;]
+    flame[&quot;Conceptual Earth / Lunar / Micro flame UI&quot;]
+    filter[&quot;Click research focus segment&quot;]
+    detail[&quot;Click featured study&quot;]
+    mission[&quot;Explore mission scenario&quot;]
+    warning[&quot;Data caveat: not flame-risk measurements&quot;]
+    load --&gt; aggregate
+    catalog --&gt; aggregate
+    source --&gt; aggregate
+    aggregate --&gt; cards
+    load --&gt; flame
+    cards --&gt; filter
+    filter --&gt;|&quot;Purpose query&quot;| explorer[&quot;Explorer filtered catalog&quot;]
+    cards --&gt; detail
+    detail --&gt; study[&quot;Investigation Detail&quot;]
+    flame --&gt; warning
+    cards --&gt; warning
+    load --&gt; mission
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style flame fill:#DBEAFE,stroke:#60A5FA
+  style warning fill:#FEF3C7,stroke:#F59E0B
+</pre></details>
+  </section>
+
+  <section class="diagram-card" id="diagram-09">
+    <header><div><small>FEATURE BREAKDOWN · DIAGRAM 09</small><h2>D09 — EXPERIMENT EXPLORER + COMPARISON MODAL | Must / Should</h2></div><a href="09-explorer-and-comparison.mmd" download>Download .mmd</a></header>
+    <div class="drawing"><pre class="mermaid">flowchart TB
+  subgraph frame[&quot;D09 — EXPERIMENT EXPLORER + COMPARISON MODAL | Must / Should&quot;]
+    direction TB
+    open([&quot;Open Explorer /explorer&quot;])
+    filters[&quot;Search + purpose + fuel + source filters [M]&quot;]
+    catalog[(&quot;INVESTIGATION + TAG + SOURCE_DOCUMENT&quot;)]
+    results[&quot;Catalog rows + evidence status [M]&quot;]
+    mode{&quot;Comparison mode enabled?&quot;}
+    detail[&quot;Child Investigation Detail [M]&quot;]
+    detailTabs[&quot;Overview / Conditions / Evidence tabs&quot;]
+    select[&quot;Tick study checkboxes [S]&quot;]
+    enough{&quot;At least 2 selected?&quot;}
+    modal[&quot;Open side-by-side comparison modal [S]&quot;]
+    export[&quot;Compare metadata + export CSV [S]&quot;]
+    close[&quot;Close modal: return to Explorer&quot;]
+    caveat[&quot;No numerical outcome comparison without verified runs&quot;]
+    open --&gt; filters
+    catalog --&gt; results
+    filters --&gt; results
+    results --&gt; mode
+    mode --&gt;|&quot;No: click row&quot;| detail
+    detail --&gt; detailTabs
+    detailTabs --&gt;|&quot;Back / compare study&quot;| results
+    mode --&gt;|&quot;Yes&quot;| select
+    select --&gt; enough
+    enough --&gt;|&quot;No&quot;| select
+    enough --&gt;|&quot;Yes&quot;| modal
+    modal --&gt; export
+    export --&gt; caveat
+    modal --&gt; close
+    close --&gt; results
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style modal fill:#EDE9FE,stroke:#A78BFA
+  style caveat fill:#FEF3C7,stroke:#F59E0B
+</pre></div>
+    <details><summary>View / copy Mermaid source</summary><pre class="source">flowchart TB
+  subgraph frame[&quot;D09 — EXPERIMENT EXPLORER + COMPARISON MODAL | Must / Should&quot;]
+    direction TB
+    open([&quot;Open Explorer /explorer&quot;])
+    filters[&quot;Search + purpose + fuel + source filters [M]&quot;]
+    catalog[(&quot;INVESTIGATION + TAG + SOURCE_DOCUMENT&quot;)]
+    results[&quot;Catalog rows + evidence status [M]&quot;]
+    mode{&quot;Comparison mode enabled?&quot;}
+    detail[&quot;Child Investigation Detail [M]&quot;]
+    detailTabs[&quot;Overview / Conditions / Evidence tabs&quot;]
+    select[&quot;Tick study checkboxes [S]&quot;]
+    enough{&quot;At least 2 selected?&quot;}
+    modal[&quot;Open side-by-side comparison modal [S]&quot;]
+    export[&quot;Compare metadata + export CSV [S]&quot;]
+    close[&quot;Close modal: return to Explorer&quot;]
+    caveat[&quot;No numerical outcome comparison without verified runs&quot;]
+    open --&gt; filters
+    catalog --&gt; results
+    filters --&gt; results
+    results --&gt; mode
+    mode --&gt;|&quot;No: click row&quot;| detail
+    detail --&gt; detailTabs
+    detailTabs --&gt;|&quot;Back / compare study&quot;| results
+    mode --&gt;|&quot;Yes&quot;| select
+    select --&gt; enough
+    enough --&gt;|&quot;No&quot;| select
+    enough --&gt;|&quot;Yes&quot;| modal
+    modal --&gt; export
+    export --&gt; caveat
+    modal --&gt; close
+    close --&gt; results
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style modal fill:#EDE9FE,stroke:#A78BFA
+  style caveat fill:#FEF3C7,stroke:#F59E0B
+</pre></details>
+  </section>
+
+  <section class="diagram-card" id="diagram-10">
+    <header><div><small>FEATURE BREAKDOWN · DIAGRAM 10</small><h2>D10 — MISSION SCENARIO + EVIDENCE GAPS | Must Have</h2></div><a href="10-mission-scenario-evidence.mmd" download>Download .mmd</a></header>
+    <div class="drawing"><pre class="mermaid">flowchart TB
+  subgraph frame[&quot;D10 — MISSION SCENARIO + EVIDENCE GAPS | Must Have&quot;]
+    direction TB
+    open([&quot;Open Mission Scenario /mission&quot;])
+    configure[&quot;One shared form: environment + gravity + O2 + psi + material + airflow&quot;]
+    action{&quot;Choose research action&quot;}
+    evidence[&quot;Analyze NASA evidence [M]&quot;]
+    prediction[&quot;Predictive Lab panel [C]&quot;]
+    scenario[(&quot;SCENARIO + SCENARIO_MATCH&quot;)]
+    runData[(&quot;TEST_RUN + TEST_CONDITION + SOURCE_DOCUMENT&quot;)]
+    dimensions[(&quot;MATCH_DIMENSION details [S]&quot;)]
+    ranking[&quot;Rank topical relevance, not fire risk&quot;]
+    gaps[&quot;Check gravity / material / O2 / pressure / airflow / combined match&quot;]
+    panel[&quot;Inline ranked studies + gap matrix [M]&quot;]
+    detail[&quot;Open study detail in Explorer&quot;]
+    chat[&quot;Open floating AI research assistant&quot;]
+    caution[&quot;No safe / unsafe conclusion&quot;]
+    open --&gt; configure
+    configure --&gt; action
+    action --&gt; evidence
+    action -.-&gt; prediction
+    evidence --&gt; scenario
+    scenario --&gt; ranking
+    runData --&gt; ranking
+    ranking --&gt; gaps
+    dimensions -.-&gt; gaps
+    gaps --&gt; panel
+    panel --&gt; detail
+    panel --&gt; chat
+    panel --&gt; caution
+    prediction -.-&gt;|&quot;Same scenario inputs&quot;| configure
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style panel fill:#DCFCE7,stroke:#4ADE80
+  style prediction fill:#EDE9FE,stroke:#A78BFA
+  style caution fill:#FEE2E2,stroke:#F87171
+</pre></div>
+    <details><summary>View / copy Mermaid source</summary><pre class="source">flowchart TB
+  subgraph frame[&quot;D10 — MISSION SCENARIO + EVIDENCE GAPS | Must Have&quot;]
+    direction TB
+    open([&quot;Open Mission Scenario /mission&quot;])
+    configure[&quot;One shared form: environment + gravity + O2 + psi + material + airflow&quot;]
+    action{&quot;Choose research action&quot;}
+    evidence[&quot;Analyze NASA evidence [M]&quot;]
+    prediction[&quot;Predictive Lab panel [C]&quot;]
+    scenario[(&quot;SCENARIO + SCENARIO_MATCH&quot;)]
+    runData[(&quot;TEST_RUN + TEST_CONDITION + SOURCE_DOCUMENT&quot;)]
+    dimensions[(&quot;MATCH_DIMENSION details [S]&quot;)]
+    ranking[&quot;Rank topical relevance, not fire risk&quot;]
+    gaps[&quot;Check gravity / material / O2 / pressure / airflow / combined match&quot;]
+    panel[&quot;Inline ranked studies + gap matrix [M]&quot;]
+    detail[&quot;Open study detail in Explorer&quot;]
+    chat[&quot;Open floating AI research assistant&quot;]
+    caution[&quot;No safe / unsafe conclusion&quot;]
+    open --&gt; configure
+    configure --&gt; action
+    action --&gt; evidence
+    action -.-&gt; prediction
+    evidence --&gt; scenario
+    scenario --&gt; ranking
+    runData --&gt; ranking
+    ranking --&gt; gaps
+    dimensions -.-&gt; gaps
+    gaps --&gt; panel
+    panel --&gt; detail
+    panel --&gt; chat
+    panel --&gt; caution
+    prediction -.-&gt;|&quot;Same scenario inputs&quot;| configure
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style panel fill:#DCFCE7,stroke:#4ADE80
+  style prediction fill:#EDE9FE,stroke:#A78BFA
+  style caution fill:#FEE2E2,stroke:#F87171
+</pre></details>
+  </section>
+
+  <section class="diagram-card" id="diagram-11">
+    <header><div><small>FEATURE BREAKDOWN · DIAGRAM 11</small><h2>D11 — GLOBAL AI RAG + CITATION FLOW | Should Have</h2></div><a href="11-floating-rag-assistant.mmd" download>Download .mmd</a></header>
+    <div class="drawing"><pre class="mermaid">flowchart TB
+  subgraph frame[&quot;D11 — GLOBAL AI RAG + CITATION FLOW | Should Have&quot;]
+    direction TB
+    ask([&quot;Click floating AI icon from any route&quot;])
+    context[&quot;Chat overlay + optional study context&quot;]
+    question[&quot;User question / follow-up&quot;]
+    retrieval[&quot;Query metadata + retrieve document chunks&quot;]
+    source[(&quot;DOCUMENT_CHUNK + SOURCE_DOCUMENT&quot;)]
+    claim[(&quot;CLAIM_SOURCE + reviewed EVIDENCE_CLAIM&quot;)]
+    evidence{&quot;Relevant traceable evidence found?&quot;}
+    llm[&quot;Grounded LLM synthesis + source checks&quot;]
+    answer[&quot;Answer with source-supported / inference / gap labels&quot;]
+    citation[&quot;Inline citation + original NASA source link&quot;]
+    insufficient[&quot;Explain evidence gap; do not invent citations&quot;]
+    session[(&quot;CHAT_SESSION + CHAT_MESSAGE + MESSAGE_CITATION&quot;)]
+    ask --&gt; context
+    context --&gt; question
+    question --&gt; retrieval
+    source --&gt; retrieval
+    claim -.-&gt; retrieval
+    retrieval --&gt; evidence
+    evidence --&gt;|&quot;Yes&quot;| llm
+    llm --&gt; answer
+    answer --&gt; citation
+    evidence --&gt;|&quot;No&quot;| insufficient
+    answer -.-&gt; session
+    insufficient -.-&gt; session
+    citation --&gt;|&quot;Open study&quot;| detail[&quot;Explorer child detail&quot;]
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style context fill:#EDE9FE,stroke:#A78BFA
+  style insufficient fill:#FEF3C7,stroke:#F59E0B
+</pre></div>
+    <details><summary>View / copy Mermaid source</summary><pre class="source">flowchart TB
+  subgraph frame[&quot;D11 — GLOBAL AI RAG + CITATION FLOW | Should Have&quot;]
+    direction TB
+    ask([&quot;Click floating AI icon from any route&quot;])
+    context[&quot;Chat overlay + optional study context&quot;]
+    question[&quot;User question / follow-up&quot;]
+    retrieval[&quot;Query metadata + retrieve document chunks&quot;]
+    source[(&quot;DOCUMENT_CHUNK + SOURCE_DOCUMENT&quot;)]
+    claim[(&quot;CLAIM_SOURCE + reviewed EVIDENCE_CLAIM&quot;)]
+    evidence{&quot;Relevant traceable evidence found?&quot;}
+    llm[&quot;Grounded LLM synthesis + source checks&quot;]
+    answer[&quot;Answer with source-supported / inference / gap labels&quot;]
+    citation[&quot;Inline citation + original NASA source link&quot;]
+    insufficient[&quot;Explain evidence gap; do not invent citations&quot;]
+    session[(&quot;CHAT_SESSION + CHAT_MESSAGE + MESSAGE_CITATION&quot;)]
+    ask --&gt; context
+    context --&gt; question
+    question --&gt; retrieval
+    source --&gt; retrieval
+    claim -.-&gt; retrieval
+    retrieval --&gt; evidence
+    evidence --&gt;|&quot;Yes&quot;| llm
+    llm --&gt; answer
+    answer --&gt; citation
+    evidence --&gt;|&quot;No&quot;| insufficient
+    answer -.-&gt; session
+    insufficient -.-&gt; session
+    citation --&gt;|&quot;Open study&quot;| detail[&quot;Explorer child detail&quot;]
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style context fill:#EDE9FE,stroke:#A78BFA
+  style insufficient fill:#FEF3C7,stroke:#F59E0B
+</pre></details>
+  </section>
+
+  <section class="diagram-card" id="diagram-12">
+    <header><div><small>FEATURE BREAKDOWN · DIAGRAM 12</small><h2>D12 — NASA PSI INGESTION + CURATION PIPELINE | Must / Should</h2></div><a href="12-nasa-psi-ingestion.mmd" download>Download .mmd</a></header>
+    <div class="drawing"><pre class="mermaid">flowchart TB
+  subgraph frame[&quot;D12 — NASA PSI INGESTION + CURATION PIPELINE | Must / Should&quot;]
+    direction TB
+    discover([&quot;Discover NASA PSI investigation record&quot;])
+    identify[&quot;Read external psi_id + DOI + platform&quot;]
+    metadata[&quot;Normalize investigation metadata&quot;]
+    check{&quot;Run-level data available?&quot;}
+    runs[&quot;Parse test runs + conditions + measurements&quot;]
+    incomplete[&quot;Mark conditions unknown / pending review&quot;]
+    documents[&quot;Store original source URLs + source assets&quot;]
+    tag[&quot;Classify research tags [S]&quot;]
+    chunks[&quot;Chunk + index source text for RAG [S]&quot;]
+    review[&quot;Human review source linkage + units&quot;]
+    catalog[(&quot;INVESTIGATION + TEST_RUN + SOURCE_DOCUMENT&quot;)]
+    status[&quot;Catalog available with transparent completeness&quot;]
+    discover --&gt; identify
+    identify --&gt; metadata
+    metadata --&gt; check
+    check --&gt;|&quot;Yes&quot;| runs
+    check --&gt;|&quot;No&quot;| incomplete
+    runs --&gt; documents
+    incomplete --&gt; documents
+    documents --&gt; tag
+    documents --&gt; chunks
+    documents --&gt; review
+    tag --&gt; catalog
+    chunks --&gt; review
+    review --&gt; catalog
+    catalog --&gt; status
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style incomplete fill:#FEF3C7,stroke:#F59E0B
+  style review fill:#DCFCE7,stroke:#4ADE80
+</pre></div>
+    <details><summary>View / copy Mermaid source</summary><pre class="source">flowchart TB
+  subgraph frame[&quot;D12 — NASA PSI INGESTION + CURATION PIPELINE | Must / Should&quot;]
+    direction TB
+    discover([&quot;Discover NASA PSI investigation record&quot;])
+    identify[&quot;Read external psi_id + DOI + platform&quot;]
+    metadata[&quot;Normalize investigation metadata&quot;]
+    check{&quot;Run-level data available?&quot;}
+    runs[&quot;Parse test runs + conditions + measurements&quot;]
+    incomplete[&quot;Mark conditions unknown / pending review&quot;]
+    documents[&quot;Store original source URLs + source assets&quot;]
+    tag[&quot;Classify research tags [S]&quot;]
+    chunks[&quot;Chunk + index source text for RAG [S]&quot;]
+    review[&quot;Human review source linkage + units&quot;]
+    catalog[(&quot;INVESTIGATION + TEST_RUN + SOURCE_DOCUMENT&quot;)]
+    status[&quot;Catalog available with transparent completeness&quot;]
+    discover --&gt; identify
+    identify --&gt; metadata
+    metadata --&gt; check
+    check --&gt;|&quot;Yes&quot;| runs
+    check --&gt;|&quot;No&quot;| incomplete
+    runs --&gt; documents
+    incomplete --&gt; documents
+    documents --&gt; tag
+    documents --&gt; chunks
+    documents --&gt; review
+    tag --&gt; catalog
+    chunks --&gt; review
+    review --&gt; catalog
+    catalog --&gt; status
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style incomplete fill:#FEF3C7,stroke:#F59E0B
+  style review fill:#DCFCE7,stroke:#4ADE80
+</pre></details>
+  </section>
+
+  <section class="diagram-card" id="diagram-13">
+    <header><div><small>FEATURE BREAKDOWN · DIAGRAM 13</small><h2>D13 — EVIDENCE CLAIM LIFECYCLE + MANY-TO-MANY PROVENANCE | Must / Should</h2></div><a href="13-evidence-claim-provenance.mmd" download>Download .mmd</a></header>
+    <div class="drawing"><pre class="mermaid">flowchart TB
+  subgraph frame[&quot;D13 — EVIDENCE CLAIM LIFECYCLE + MANY-TO-MANY PROVENANCE | Must / Should&quot;]
+    direction TB
+    doc([&quot;Ingest SOURCE_DOCUMENT&quot;])
+    candidate[&quot;Optional selective extraction: candidate claims&quot;]
+    validate[&quot;Scientist / curator reviews exact wording&quot;]
+    canonical{&quot;Equivalent reviewed claim already exists?&quot;}
+    reuse[&quot;Reuse canonical EVIDENCE_CLAIM&quot;]
+    newClaim[&quot;Create reviewed EVIDENCE_CLAIM&quot;]
+    link[&quot;Create CLAIM_SOURCE association with locator + excerpt&quot;]
+    multi[&quot;A claim may have multiple documents; a document may support multiple claims&quot;]
+    consumer[&quot;Detail evidence / Scenario gaps / RAG citations&quot;]
+    caution[&quot;Source supports claim in its context; not automatic proof for a new mission scenario&quot;]
+    doc --&gt; candidate
+    candidate --&gt; validate
+    validate --&gt; canonical
+    canonical --&gt;|&quot;Yes&quot;| reuse
+    canonical --&gt;|&quot;No&quot;| newClaim
+    reuse --&gt; link
+    newClaim --&gt; link
+    link --&gt; multi
+    multi --&gt; consumer
+    consumer --&gt; caution
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style validate fill:#DCFCE7,stroke:#4ADE80
+  style canonical fill:#EDE9FE,stroke:#A78BFA
+  style caution fill:#FEF3C7,stroke:#F59E0B
+</pre></div>
+    <details><summary>View / copy Mermaid source</summary><pre class="source">flowchart TB
+  subgraph frame[&quot;D13 — EVIDENCE CLAIM LIFECYCLE + MANY-TO-MANY PROVENANCE | Must / Should&quot;]
+    direction TB
+    doc([&quot;Ingest SOURCE_DOCUMENT&quot;])
+    candidate[&quot;Optional selective extraction: candidate claims&quot;]
+    validate[&quot;Scientist / curator reviews exact wording&quot;]
+    canonical{&quot;Equivalent reviewed claim already exists?&quot;}
+    reuse[&quot;Reuse canonical EVIDENCE_CLAIM&quot;]
+    newClaim[&quot;Create reviewed EVIDENCE_CLAIM&quot;]
+    link[&quot;Create CLAIM_SOURCE association with locator + excerpt&quot;]
+    multi[&quot;A claim may have multiple documents; a document may support multiple claims&quot;]
+    consumer[&quot;Detail evidence / Scenario gaps / RAG citations&quot;]
+    caution[&quot;Source supports claim in its context; not automatic proof for a new mission scenario&quot;]
+    doc --&gt; candidate
+    candidate --&gt; validate
+    validate --&gt; canonical
+    canonical --&gt;|&quot;Yes&quot;| reuse
+    canonical --&gt;|&quot;No&quot;| newClaim
+    reuse --&gt; link
+    newClaim --&gt; link
+    link --&gt; multi
+    multi --&gt; consumer
+    consumer --&gt; caution
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style validate fill:#DCFCE7,stroke:#4ADE80
+  style canonical fill:#EDE9FE,stroke:#A78BFA
+  style caution fill:#FEF3C7,stroke:#F59E0B
+</pre></details>
+  </section>
+
+  <section class="diagram-card" id="diagram-14">
+    <header><div><small>FEATURE BREAKDOWN · DIAGRAM 14</small><h2>D14 — PREDICTIVE LAB READINESS + GUARDED EXECUTION | Could Have</h2></div><a href="14-predictive-lab-readiness.mmd" download>Download .mmd</a></header>
+    <div class="drawing"><pre class="mermaid">flowchart TB
+  subgraph frame[&quot;D14 — PREDICTIVE LAB READINESS + GUARDED EXECUTION | Could Have&quot;]
+    direction TB
+    inputs([&quot;Reuse Mission Scenario inputs&quot;])
+    openLab[&quot;Open inline Predictive Lab panel&quot;]
+    prepared{&quot;Verified run-level training data?&quot;}
+    trained{&quot;Validated model version available?&quot;}
+    domain{&quot;Scenario inside model applicability domain?&quot;}
+    blocked[&quot;Keep Run Prediction disabled; show missing requirements&quot;]
+    execute[&quot;Run versioned scientific model&quot;]
+    outputs[&quot;Show prediction + uncertainty + model scope&quot;]
+    records[(&quot;MODEL_VERSION + MODEL_TRAINING_RUN + PREDICTION_RESULT&quot;)]
+    warning[&quot;Never issue operational safe / unsafe certification&quot;]
+    inputs --&gt; openLab
+    openLab --&gt; prepared
+    prepared --&gt;|&quot;No&quot;| blocked
+    prepared --&gt;|&quot;Yes&quot;| trained
+    trained --&gt;|&quot;No&quot;| blocked
+    trained --&gt;|&quot;Yes&quot;| domain
+    domain --&gt;|&quot;No&quot;| blocked
+    domain --&gt;|&quot;Yes&quot;| execute
+    execute --&gt; records
+    records --&gt; outputs
+    outputs --&gt; warning
+    blocked --&gt; warning
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style blocked fill:#FEF3C7,stroke:#F59E0B
+  style execute fill:#DCFCE7,stroke:#4ADE80
+  style warning fill:#FEE2E2,stroke:#F87171
+</pre></div>
+    <details><summary>View / copy Mermaid source</summary><pre class="source">flowchart TB
+  subgraph frame[&quot;D14 — PREDICTIVE LAB READINESS + GUARDED EXECUTION | Could Have&quot;]
+    direction TB
+    inputs([&quot;Reuse Mission Scenario inputs&quot;])
+    openLab[&quot;Open inline Predictive Lab panel&quot;]
+    prepared{&quot;Verified run-level training data?&quot;}
+    trained{&quot;Validated model version available?&quot;}
+    domain{&quot;Scenario inside model applicability domain?&quot;}
+    blocked[&quot;Keep Run Prediction disabled; show missing requirements&quot;]
+    execute[&quot;Run versioned scientific model&quot;]
+    outputs[&quot;Show prediction + uncertainty + model scope&quot;]
+    records[(&quot;MODEL_VERSION + MODEL_TRAINING_RUN + PREDICTION_RESULT&quot;)]
+    warning[&quot;Never issue operational safe / unsafe certification&quot;]
+    inputs --&gt; openLab
+    openLab --&gt; prepared
+    prepared --&gt;|&quot;No&quot;| blocked
+    prepared --&gt;|&quot;Yes&quot;| trained
+    trained --&gt;|&quot;No&quot;| blocked
+    trained --&gt;|&quot;Yes&quot;| domain
+    domain --&gt;|&quot;No&quot;| blocked
+    domain --&gt;|&quot;Yes&quot;| execute
+    execute --&gt; records
+    records --&gt; outputs
+    outputs --&gt; warning
+    blocked --&gt; warning
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style blocked fill:#FEF3C7,stroke:#F59E0B
+  style execute fill:#DCFCE7,stroke:#4ADE80
+  style warning fill:#FEE2E2,stroke:#F87171
+</pre></details>
+  </section>
+
+  <section class="diagram-card" id="diagram-15">
+    <header><div><small>FEATURE BREAKDOWN · DIAGRAM 15</small><h2>D15 — IMPLEMENTATION DEPENDENCIES | Must / Should / Could</h2></div><a href="15-implementation-priorities.mmd" download>Download .mmd</a></header>
+    <div class="drawing"><pre class="mermaid">flowchart TB
+  subgraph frame[&quot;D15 — IMPLEMENTATION DEPENDENCIES | Must / Should / Could&quot;]
+    direction TB
+    subgraph must[&quot;MUST HAVE — Evidence-first foundation&quot;]
+      ui[&quot;Dashboard + Explorer + Detail + Mission UI&quot;]
+      schema[&quot;Catalog + run conditions + source + claims + scenario ERD&quot;]
+      core[&quot;Validated API + source-aware search + scenario gap analysis&quot;]
+    end
+    subgraph should[&quot;SHOULD HAVE — Research productivity&quot;]
+      tags[&quot;Tags + classification + comparison analysis&quot;]
+      rag[&quot;Document chunks + grounded RAG + citations&quot;]
+      review[&quot;Human review of source links + candidate claims&quot;]
+    end
+    subgraph could[&quot;COULD HAVE — Scientific extension&quot;]
+      models[&quot;Model version + training provenance&quot;]
+      prediction[&quot;Predictions with domain + uncertainty checks&quot;]
+      importJob[&quot;Ingestion job tracking + import issues&quot;]
+    end
+    ui --&gt; core
+    schema --&gt; core
+    core --&gt; tags
+    core --&gt; rag
+    schema --&gt; review
+    review --&gt; rag
+    review --&gt; models
+    review --&gt; importJob
+    models --&gt; prediction
+    core --&gt; prediction
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style must fill:#DCFCE7,stroke:#4ADE80
+  style should fill:#DBEAFE,stroke:#60A5FA
+  style could fill:#FEF3C7,stroke:#F59E0B
+</pre></div>
+    <details><summary>View / copy Mermaid source</summary><pre class="source">flowchart TB
+  subgraph frame[&quot;D15 — IMPLEMENTATION DEPENDENCIES | Must / Should / Could&quot;]
+    direction TB
+    subgraph must[&quot;MUST HAVE — Evidence-first foundation&quot;]
+      ui[&quot;Dashboard + Explorer + Detail + Mission UI&quot;]
+      schema[&quot;Catalog + run conditions + source + claims + scenario ERD&quot;]
+      core[&quot;Validated API + source-aware search + scenario gap analysis&quot;]
+    end
+    subgraph should[&quot;SHOULD HAVE — Research productivity&quot;]
+      tags[&quot;Tags + classification + comparison analysis&quot;]
+      rag[&quot;Document chunks + grounded RAG + citations&quot;]
+      review[&quot;Human review of source links + candidate claims&quot;]
+    end
+    subgraph could[&quot;COULD HAVE — Scientific extension&quot;]
+      models[&quot;Model version + training provenance&quot;]
+      prediction[&quot;Predictions with domain + uncertainty checks&quot;]
+      importJob[&quot;Ingestion job tracking + import issues&quot;]
+    end
+    ui --&gt; core
+    schema --&gt; core
+    core --&gt; tags
+    core --&gt; rag
+    schema --&gt; review
+    review --&gt; rag
+    review --&gt; models
+    review --&gt; importJob
+    models --&gt; prediction
+    core --&gt; prediction
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style must fill:#DCFCE7,stroke:#4ADE80
+  style should fill:#DBEAFE,stroke:#60A5FA
+  style could fill:#FEF3C7,stroke:#F59E0B
+</pre></details>
+  </section>
+<footer>FlameGuard AI · System design working draft · Source provenance first. If diagrams fail to render offline, open the Mermaid source in each panel or paste an .mmd file into Mermaid Live / diagrams.net.</footer></main>
+<script type="module">
+const warn=(el,message)=>{const banner=document.createElement('div');banner.textContent=message;banner.style='padding:12px;color:#9a3412;background:#ffedd5;margin-bottom:12px';el.prepend(banner)};
+let mermaid=null;
+try{mermaid=(await import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs')).default;mermaid.initialize({startOnLoad:false,securityLevel:'strict',theme:'neutral',flowchart:{htmlLabels:false,curve:'basis',useMaxWidth:false}});}catch(error){document.querySelectorAll('.drawing').forEach(el=>warn(el,'Mermaid renderer could not load (internet connection required). The source code is still available below.'));}
+if(mermaid){for(const element of document.querySelectorAll('.mermaid')){try{await mermaid.run({nodes:[element]});}catch(error){warn(element.closest('.drawing'),'This diagram could not be parsed. Expand the source below to inspect its Mermaid syntax.');console.error('Mermaid parse error',error);}}}
+</script>
+</body></html>

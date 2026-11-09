@@ -1,0 +1,1 @@
+"""FlameGuard AI backend foundation."""
