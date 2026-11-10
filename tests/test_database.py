@@ -1,4 +1,3 @@
-import os
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
@@ -28,10 +27,15 @@ async def test_session_dependency_exits_context_on_failure() -> None:
 
 
 @pytest.mark.integration
-async def test_postgres_connectivity_and_session_cleanup() -> None:
-    if os.getenv("RUN_DB_INTEGRATION") != "1":
-        pytest.skip("Set RUN_DB_INTEGRATION=1 with PostgreSQL running to opt in")
-    database = Database(Settings())
+async def test_postgres_connectivity_and_session_cleanup(migrated_database) -> None:
+    database = Database(
+        Settings(
+            _env_file=None,
+            debug=False,
+            app_env="test",
+            database_url=migrated_database.url.render_as_string(hide_password=False),
+        )
+    )
     try:
         async with database.session_factory() as session:
             assert (await session.execute(text("SELECT 1"))).scalar_one() == 1

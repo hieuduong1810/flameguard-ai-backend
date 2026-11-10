@@ -1,4 +1,4 @@
-"""Async migrations; no credentials stored in alembic.ini and no domain tables in Phase 1."""
+"""Async migrations using environment settings and all registered approved models."""
 
 import asyncio
 from logging.config import fileConfig

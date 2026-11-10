@@ -6,6 +6,8 @@ from httpx import ASGITransport, AsyncClient
 
 from app.core.config import Settings
 
+pytest_plugins = ["tests.postgres_fixtures"]
+
 
 @pytest.fixture(autouse=True)
 def isolated_environment(request, monkeypatch, tmp_path) -> None:

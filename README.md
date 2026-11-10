@@ -1,239 +1,236 @@
 # FlameGuard AI Backend
 
-FastAPI backend for exploring microgravity combustion research with traceable evidence.
-Phase 1 provides application, configuration, database, migration, and test infrastructure.
-It contains no scientific records, domain tables, matching algorithm, RAG, or predictive model.
-This is a research demonstration, not a source of operational spacecraft fire safety advice.
+Backend for a research platform that explores NASA microgravity combustion experiments,
+compares evidence, identifies scenario knowledge gaps and supports source-grounded scientific
+explanations. FlameGuard AI is a research and demonstration platform; its outputs must not
+be presented as operational spacecraft fire-safety certification or unvalidated safety advice.
 
-The existing [design diagrams](docs/index.html) are preserved. See the
-[architecture audit and API proposal](docs/backend-implementation-plan.md) for the 21-table
-inventory, frontend mappings, unresolved design decisions, and implementation phases.
+This README is a stable project guide for all development phases. Change it only when the
+user explicitly requests or approves changes to requirements, architecture, configuration
+contracts or the development workflow. Feature completion, migration revisions, test totals
+and temporary environment issues belong in separate phase records under [docs/](docs/).
 
-## Stack and requirements
+## Project references
 
-- Python 3.12 recommended; the project permits 3.12 and 3.13.
-- Poetry 2.x manages dependencies, the lockfile, and the in-project `.venv/`.
-- FastAPI and Uvicorn provide HTTP routing, validation, OpenAPI, and the development server.
-- Pydantic v2 and pydantic-settings validate environment configuration.
-- PostgreSQL 17 runs as the only Docker Compose service.
-- SQLAlchemy 2.0 async sessions and asyncpg provide database access; Alembic manages migrations.
-- pytest, pytest-asyncio, and HTTPX test the API; Ruff handles linting and formatting.
-- Docker Desktop with its Linux engine running, Docker Compose, and VS Code are recommended
-  for the Windows development workflow. PostgreSQL is optional for unit tests and liveness.
+- [Architecture and implementation plan](docs/backend-implementation-plan.md): scope,
+  responsibility boundaries, approved logical entities, API mappings and delivery roadmap.
+- [Original architecture and ERD diagrams](docs/index.html): approved design reference.
+- [Implementation records](docs/): phase-specific decisions, delivered changes and executed checks.
+- [Dependency configuration](pyproject.toml) and [lockfile](poetry.lock): supported runtimes
+  and reproducible dependency versions.
 
-Poetry uses **non-package mode** (`package-mode = false`): this application runs from the
-repository, rather than being built and published as a Python distribution. Runtime dependencies
-are in `[project]`; test/lint dependencies are in the Poetry `dev` group (installed by default).
-`poetry.toml` sets `virtualenvs.in-project = true`. Commit `poetry.lock`; never commit `.venv/`.
-Do not install project dependencies with pip or manually create a virtual environment.
+Feature/API availability is documented by the running application's OpenAPI and delivery
+records. This README does not track which roadmap phase is complete.
 
-## Local setup (PowerShell)
+## Architecture and stack
 
-From the existing backend directory:
+Use a modular monolith with a separately deployed frontend and backend. API routes validate
+HTTP contracts; services own business workflows and transaction boundaries; repositories
+handle async queries; models and migrations define persistence; integrations and ingestion
+handle external systems, source parsing and provenance.
+
+| Technology | Responsibility |
+| --- | --- |
+| Python | Backend runtime; use a version supported by pyproject.toml |
+| FastAPI / Uvicorn | HTTP application, development server and OpenAPI |
+| Poetry | Dependency groups, reproducible lockfile and project virtual environment |
+| PostgreSQL | Relational storage with source traceability and referential integrity |
+| SQLAlchemy 2.x async / asyncpg | ORM, async database engine and sessions |
+| Alembic | Versioned schema migrations |
+| Pydantic v2 / pydantic-settings | Typed contracts and environment validation |
+| pytest / pytest-asyncio / HTTPX | Unit, async, API and integration verification |
+| Ruff | Linting and formatting |
+
+Poetry uses non-package mode because the backend runs as an application from this repository.
+It creates an in-project `.venv/`; development tools use the `dev` dependency group. Commit
+`poetry.lock`, keep `.venv/` out of Git, and manage project dependencies through Poetry.
+
+## Prerequisites
+
+- Python 3.12 recommended, subject to the supported range in `pyproject.toml`.
+- Poetry 2.x available on PATH; use the [official installation guide](https://python-poetry.org/docs/#installation).
+- A reachable PostgreSQL server, installed directly or run through Docker Compose.
+- Docker Desktop with its Linux engine running when choosing the Docker database option.
+- Git and a terminal; VS Code is suitable for the Windows development workflow.
+
+Run FastAPI directly through Poetry. Docker Compose is used for PostgreSQL, avoiding an
+unnecessary application container for local development.
+
+## Initial setup (Windows PowerShell)
+
+From the workspace root:
 
 ```powershell
-Set-Location 'C:\Source Code\NASA\flameguard-ai-backend'
+Set-Location .\flameguard-ai-backend
 py -3.12 --version
 poetry --version
-Copy-Item .env.example .env
-# Edit .env with your local values before starting services.
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+# Edit .env to select your database and local credentials.
 poetry env use 3.12
 poetry install
 poetry check
-docker compose up -d postgres
+```
+
+Run subsequent commands from the backend repository root. The local `.env` contains private
+configuration and is ignored by Git. `.env.example` contains non-sensitive examples only.
+
+## Database selection
+
+**DATABASE_URL selects the database used by both FastAPI and Alembic.** These processes run
+independently; Alembic does not require Uvicorn to be running. The database server must be
+available before migrations or database-dependent requests can succeed.
+
+| Configuration | Consumer |
+| --- | --- |
+| `DATABASE_URL` | FastAPI and Alembic connection target, user, password and database |
+| `POSTGRES_PORT` | Docker Compose host-side PostgreSQL port |
+| `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` | Docker database initialization settings |
+
+For Docker:
+
+```powershell
+docker compose up -d --wait postgres
 docker compose ps
-poetry run alembic upgrade head
-poetry run uvicorn app.main:app --reload
 ```
 
-Copy `.env.example` only when `.env` does not already exist. If Poetry is not available, install
-it using the [official isolated installer](https://python-poetry.org/docs/#installation) before
-running the commands above. No global project dependencies are required.
+Set DATABASE_URL to match the Docker host port and database credentials. If native PostgreSQL
+uses 5432, Docker can use `POSTGRES_PORT=5433`, with `127.0.0.1:5433` in DATABASE_URL.
+PostgreSQL inside the container can still use its normal internal port 5432.
 
-For this implementation session, Poetry was installed locally under ignored `.tools/poetry/`.
-To use that installation in the current PowerShell session:
+For native PostgreSQL, select its actual host/port, user, password and database in DATABASE_URL
+and skip Docker startup. With native PostgreSQL on 5432 and Docker mapped to 5433, changing
+the URL port switches servers only if the other credentials/database settings also match.
+The two servers hold independent users, databases and data.
 
-```powershell
-$env:Path = "$(Join-Path (Get-Location) '.tools\poetry\bin');$env:Path"
-poetry --version
-```
+Percent-encode special characters in URL credentials. Changing POSTGRES_* does not change
+credentials or recreate data inside an existing persistent Docker volume. Do not delete
+volumes or reset database state to solve a connection or port configuration problem.
 
-This local tool directory is not committed or required by other developers.
-
-## Environment variables
-
-Settings read `.env` in the current working directory; actual environment variables take
-precedence. Run commands from the backend root. Unrecognized `.env` entries are ignored so the
-same file can hold Compose settings. Configuration is validated before the application starts.
-
-| Variable | Purpose / example |
-| --- | --- |
-| `APP_NAME` | OpenAPI title; `FlameGuard AI Backend` |
-| `APP_ENV` | `development`, `test`, `staging`, or `production` |
-| `DEBUG` | Boolean, default `false`; rejected when true in production |
-| `API_V1_PREFIX` | `/api/v1`; starts with `/`, no trailing slash |
-| `DATABASE_URL` | PostgreSQL URL using `postgresql+asyncpg://`; stored as a secret setting |
-| `CORS_ORIGINS` | JSON array of explicit HTTP(S) origins; no wildcards or URL paths |
-| `LOG_LEVEL` | `DEBUG`, `INFO`, `WARNING`, `ERROR`, or `CRITICAL` |
-| `DB_CONNECT_TIMEOUT_SECONDS` | Connection timeout; default 3 seconds |
-| `DB_READY_TIMEOUT_SECONDS` | Readiness query deadline; default 3 seconds |
-| `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` | Local Compose credentials/database |
-| `POSTGRES_PORT` | Host port, default `5432`; bound only on `127.0.0.1` |
-
-The checked-in values are local examples. Keep `DATABASE_URL` synchronized with Compose
-credentials and host port, and percent-encode special characters in URL credentials. Changing
-`POSTGRES_*` does not reinitialize a previously created PostgreSQL volume. The example defaults
-also allow health/docs to start without a `.env` file. Replace local defaults for deployment.
-If the host already defines an unrelated `DEBUG` value, explicitly set `$env:DEBUG = 'false'`.
-
-The default CORS allowlist includes `http://localhost:3000` and
-`https://flame-in-freewall-tourbillion.vercel.app`. Browser credentials are disabled; the
-allowlist permits GET, POST, OPTIONS and Content-Type/Authorization headers. CORS is a browser
-access policy, not authentication. The backend has no authentication system in this phase.
-
-## Endpoints
-
-| URL | Behavior |
-| --- | --- |
-| http://localhost:8000/api/v1/health | Always 200 while HTTP is serving; no database dependency |
-| http://localhost:8000/api/v1/ready | Executes `SELECT 1`; 200 if available, 503 if unavailable/timed out |
-| http://localhost:8000/docs | Swagger UI |
-| http://localhost:8000/redoc | ReDoc |
-| http://localhost:8000/openapi.json | OpenAPI schema |
-
-Health returns `{"status":"ok","service":"flameguard-ai-backend"}`.
-Readiness returns `{"status":"ready","service":"flameguard-ai-backend","database":"ok"}`
-or HTTP 503 with `status` and `database` set to `unavailable`. Failure responses do not include
-connection strings or database errors. Startup creates an engine without requiring a live
-database; shutdown disposes its pool. No schema creation occurs on application startup.
-
-In another PowerShell terminal:
-
-```powershell
-Invoke-RestMethod http://localhost:8000/api/v1/health
-Invoke-RestMethod http://localhost:8000/api/v1/ready
-Start-Process http://localhost:8000/docs
-```
-
-## Database and migrations
-
-Only PostgreSQL runs in Docker, with a named persistent volume, health check, one CPU and a
-256 MB memory limit. Run FastAPI through Poetry on the host to keep local RAM usage modest.
-
-```powershell
-docker compose up -d postgres
-docker compose logs --tail 50 postgres
-poetry run alembic heads
-poetry run alembic upgrade head
-```
-
-There are **no revisions or domain tables in Phase 1**. `upgrade head` requires a reachable
-database even with no revisions. It may initialize Alembic's own version bookkeeping;
-it does not implement the ERD. Offline wiring can be checked without PostgreSQL:
-
-```powershell
-poetry run alembic upgrade head --sql
-```
-
-In Phase 2, resolve the audit's open schema details, implement approved models under
-`app/models/`, and import them in `app/models/__init__.py` so Alembic sees their metadata.
-Then generate and review a migration before applying it:
-
-```powershell
-poetry run alembic revision --autogenerate -m "implement approved ERD"
-poetry run alembic upgrade head
-```
-
-Database sessions are request scoped through `get_db_session`. Session context exit closes
-resources and rolls back uncommitted transactions; future services explicitly commit writes.
-Keep business logic in services and database queries in repositories when those modules are
-needed. No unused service/repository/ingestion/integration packages were created in Phase 1.
-The async design follows [SQLAlchemy's async session guidance](https://docs.sqlalchemy.org/en/20/orm/extensions/asyncio.html);
-resource cleanup uses [FastAPI lifespan](https://fastapi.tiangolo.com/advanced/events/).
-
-Stop the local database without deleting its data:
+Stop Docker PostgreSQL while retaining its volume:
 
 ```powershell
 docker compose stop postgres
 ```
 
+## Application configuration
+
+Settings read `.env` from the working directory. Process environment variables take precedence.
+Restart the backend after changing `.env` so cached settings and engine configuration are
+recreated. Use actual private values locally; do not expose secrets in public frontend variables.
+
+| Variable | Purpose |
+| --- | --- |
+| `APP_NAME` | Application/OpenAPI title |
+| `APP_ENV` | development, test, staging or production |
+| `DEBUG` | Development debug switch; production debug must be disabled |
+| `API_V1_PREFIX` | Versioned API prefix; default /api/v1 |
+| `DATABASE_URL` | PostgreSQL connection URL using postgresql+asyncpg:// |
+| `CORS_ORIGINS` | JSON array of explicit allowed frontend origins |
+| `LOG_LEVEL` | Application logging level |
+| `DB_CONNECT_TIMEOUT_SECONDS` | Database connection timeout |
+| `DB_READY_TIMEOUT_SECONDS` | Database readiness deadline |
+
+Use `.env.example` and the settings definitions for configuration details. Configure CORS for
+explicit frontend origins, including localhost:3000 for local integration and the appropriate
+HTTPS frontend deployment. CORS does not replace authentication or authorization.
+
+## Migrations and application startup
+
+Review and apply the repository's existing migration chain to the selected DATABASE_URL:
+
+```powershell
+poetry run alembic history
+poetry run alembic upgrade head
+poetry run alembic current
+poetry run alembic check
+poetry run uvicorn app.main:app --reload
+```
+
+Inspect upgrade SQL without connecting to PostgreSQL:
+
+```powershell
+poetry run alembic upgrade head --sql
+```
+
+Models must be registered with Alembic metadata. Review generated migration code before
+applying it; do not replace migrations with application-startup table creation, delete
+existing revisions or blindly stamp a database to suppress an unexplained conflict.
+
+Repositories do not own implicit commits. Services/callers explicitly control transactions,
+and request-scoped sessions release resources and roll back uncommitted work on exit.
+
+## API discovery and operational checks
+
+| URL | Purpose |
+| --- | --- |
+| http://localhost:8000/docs | Swagger UI and available API operations |
+| http://localhost:8000/redoc | ReDoc |
+| http://localhost:8000/openapi.json | Machine-readable API schema |
+| http://localhost:8000/api/v1/health | Liveness, independent of database availability |
+| http://localhost:8000/api/v1/ready | Readiness of the configured database |
+
+The health paths follow API_V1_PREFIX if it is customized. Liveness must remain available
+during database outages; readiness failures must be bounded and sanitized. Business endpoint
+contracts and delivery scope are described in the architecture plan and phase records.
+
 ## Testing and code quality
 
 ```powershell
 poetry check
-poetry install
 poetry run ruff check .
 poetry run ruff format --check .
 poetry run pytest
 ```
 
-Unit tests isolate local settings, use HTTPX with application lifespan, and replace database
-sessions for readiness success, failure, and timeout checks. They cover CORS, error redaction,
-session cleanup, settings, OpenAPI, and engine shutdown without Docker. One read-only PostgreSQL
-integration test is opt-in:
+Checks that do not require PostgreSQL must run independently of Docker. Database integration
+tests use a separate PostgreSQL testing target, never the development database. Configure
+TEST_DATABASE_URL as a process environment variable when running those tests:
 
 ```powershell
-$env:RUN_DB_INTEGRATION = '1'
+# Replace the example password with the testing role's actual password, URL-encoded as needed.
+$env:TEST_DATABASE_URL = 'postgresql+asyncpg://flameguard:YOUR_TEST_PASSWORD@127.0.0.1:5433/flameguard_test_suite'
 poetry run pytest -m integration
-Remove-Item Env:\RUN_DB_INTEGRATION
+Remove-Item Env:\TEST_DATABASE_URL
 ```
 
-Start PostgreSQL and configure `.env` before opting in. See
-[verification results](docs/phase-1-verification.md) for checks actually executed in this session.
+The testing role needs CREATEDB for fresh isolated databases. Use a test-name prefix distinct
+from the development database. Fixture transactions must roll back synthetic records, even
+if application code commits. Never truncate, overwrite or reset development data during tests.
+Consult the test fixtures and phase verification records for detailed test setup and results.
 
-## Frontend integration (future phases)
+## Frontend integration and scientific integrity
 
-The sibling Next.js frontend remains unchanged and still uses static TypeScript fixtures and
-local algorithms. Only health and readiness APIs are implemented here. Future frontend changes
-will use an environment setting such as:
+The Next.js frontend connects to a separately deployed HTTPS backend. Its public configuration
+can use a value such as NEXT_PUBLIC_API_BASE_URL=https://your-backend-host.example/api/v1;
+provider keys and database credentials remain private on the backend.
+
+Keep public slugs, database UUIDs and NASA identifiers distinct. Preserve source documents,
+locators/excerpts, original units, unknown values, uncertainty and validation context across
+API mappings. Do not seed frontend demo data as verified NASA research. Retrieval, matching
+and prediction features must follow the evidence and validation requirements in the plan.
+
+## Repository organization and documentation policy
+
+The following describes responsibility boundaries rather than an exhaustive file inventory.
+Directories are added when real functionality requires them:
 
 ```text
-NEXT_PUBLIC_API_BASE_URL=https://your-backend-host.example/api/v1
+app/
+  main.py          Application entry point and resource lifecycle
+  api/             HTTP routes and versioned routers
+  core/            Settings and database infrastructure
+  models/          Approved persistence entities
+  schemas/         Typed input/output contracts
+  repositories/    Async persistence queries
+  services/        Business workflows and transaction coordination
+  integrations/    External source/provider adapters
+  ingestion/       Scientific parsing, provenance and curation
+alembic/           Versioned schema changes
+tests/             Unit, API, migration and database verification
+docs/              Architecture references and phase-specific records
 ```
 
-The separately deployed backend needs HTTPS and an explicit CORS allowlist for the frontend's
-origin. Public frontend variables must never contain database credentials or provider keys.
-Use the API proposal in the audit before integrating business features. Keep public slugs,
-database UUIDs, and NASA PSI identifiers distinct. Unknown scientific values must remain
-unknown; do not fabricate values to satisfy existing required TypeScript fields.
-
-## Current structure
-
-```text
-flameguard-ai-backend/
-  app/
-    main.py
-    api/v1/router.py
-    api/v1/endpoints/health.py
-    core/config.py
-    core/database.py
-    models/base.py
-    schemas/health.py
-  alembic/
-    env.py
-    script.py.mako
-    versions/.gitkeep
-  tests/
-    conftest.py
-    test_app.py
-    test_config.py
-    test_cors.py
-    test_database.py
-    test_health.py
-  docs/
-    index.html                      # existing, unchanged
-    backend-implementation-plan.md
-    phase-1-verification.md
-  .env.example
-  .gitignore
-  alembic.ini
-  compose.yaml
-  poetry.toml
-  pyproject.toml
-  poetry.lock
-  README.md
-```
-
-Python package directories also contain `__init__.py`. The local `.venv/` and `.tools/` are
-ignored. No frontend mocks have been imported or seeded. Next: resolve the audit's schema
-ambiguities and implement the approved ERD and migrations in Phase 2.
+Keep README and backend-implementation-plan as shared project baselines. Do not append phase
+completion notes, machine-specific setup history, temporary blockers, test counts or migration
+revision lists to them. Record each delivery separately in `docs/phase-*.md`; update these two
+baseline documents only for an explicit user-requested or user-approved requirements change.

@@ -28,7 +28,7 @@ testpaths = ["tests"]
 pythonpath = ["."]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
-markers = ["integration: opt-in tests against a running PostgreSQL database"]
+markers = ["integration: isolated PostgreSQL tests requiring TEST_DATABASE_URL and CREATEDB"]
 
 [tool.ruff]
 target-version = "py312"

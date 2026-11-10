@@ -1,66 +1,100 @@
-# Backend implementation audit and plan
+# Backend architecture and implementation plan
 
-Audit date: 2026-11-09. Phase 1 scope: foundation only. This document proposes future contracts;
-it does not approve schema changes or verify any NASA scientific finding.
+This document is the stable requirements and architecture baseline for FlameGuard AI Backend.
+It applies across the complete development roadmap and is not an implementation status report.
 
-## A. Existing system and inspected sources
+Update this document only when the user explicitly requests or approves a change to product
+requirements, architecture, schema requirements, API contracts or roadmap scope. Completing
+work, adding a migration, running tests or moving to another phase does not require an edit.
+Implementation details, approvals, verification results and progress belong in separate
+`docs/phase-*.md` records. Consult those records and the source code for delivery status.
 
-The workspace contains two sibling Git repositories. Before editing, backend Git status showed
-only untracked `docs/`; frontend status was clean. The backend contained `docs/index.html`
-and no application code. The workspace root itself is not a Git repository. No repository was
-initialized, committed, or pushed. The frontend and original design files are preserved.
+## Product scope and design references
 
-Primary design reference: [docs/index.html](index.html). Its HTML embeds 15 Mermaid diagrams,
-each repeated in a copyable source block. The renderer imports Mermaid 11 from jsDelivr, uses
-strict security and the neutral theme, and shows a fallback when the CDN cannot load or a
-diagram cannot parse. There are 15 relative `.mmd` download links, but none of those files is
-present in the backend docs directory. The embedded definitions are available and were used
-for this audit; there are no other local linked diagram assets. No diagram was edited.
+FlameGuard AI is a research platform for exploring NASA microgravity combustion experiments,
+comparing experimental evidence, identifying scenario evidence gaps and producing traceable
+scientific explanations. Its results must distinguish source-backed findings, inference,
+uncertainty, simulated/demo content and unsupported conclusions. It does not provide
+operational spacecraft fire-safety certification.
 
-| Diagram | Design requirement |
+The workspace contains sibling backend and frontend repositories. Backend work belongs in
+`flameguard-ai-backend/`; the Next.js frontend in `FlameInFreewall_Tourbillion/` is a separate
+integration client and must not be changed by backend-only tasks without authorization.
+
+The original [architecture and ERD diagrams](index.html) define logical entities and
+relationships. Frontend interfaces and page consumers define UI compatibility requirements;
+they do not establish scientific validity or silently override the ERD. Approved physical
+mappings and contract decisions must be recorded explicitly. Preserve the original diagrams
+unless the user requests a design change.
+
+| Design reference | Requirement area |
 | --- | --- |
-| D01 Overall system architecture | UI -> FastAPI -> PostgreSQL; original assets retained; later vector/model storage and providers |
-| D02 Detailed logical components | Modular monolith; catalog, matching, gaps, RAG, ingestion, guarded prediction responsibilities |
-| D03 Must-have ERD | Nine core tables; run-level evidence and many-to-many claim provenance |
-| D04 Should-have ERD | Seven additional tag, match-detail, chunk, chat and citation tables |
-| D05 Could-have ERD | Five additional model/training/prediction and ingestion-operation tables |
-| D06 User navigation | Landing, dashboard, explorer/detail; comparison modal; mission inline evidence/lab; global AI dock |
-| D07 Feature/database ownership | Catalog, runs, evidence, scenarios, chat and models support separate feature queries |
-| D08 Dashboard | Aggregate catalog and source coverage; conceptual visuals are not measured risk |
-| D09 Explorer/comparison | Search/filter/detail, select 2+ studies, compare and CSV; verified runs required for numerical outcomes |
-| D10 Mission/gaps | Shared scenario form; topical relevance and six gap dimensions; no safe/unsafe conclusion |
-| D11 Global RAG/citations | Retrieve documents/chunks and reviewed claims; validate source links; abstain when evidence absent |
-| D12 PSI ingestion/curation | Normalize PSI identity; parse available runs; retain unknowns, units, original sources; human review |
-| D13 Claim lifecycle | Review exact wording; reuse canonical claims; CLAIM_SOURCE links include locator and excerpt |
-| D14 Predictive readiness | Require verified training data, validated version, applicability domain and uncertainty; otherwise disabled |
-| D15 Dependencies | Evidence foundation precedes tags/RAG; reviewed data and model provenance precede prediction |
+| D01-D02 | Overall system and modular-monolith component architecture |
+| D03-D05 | Must/Should/Could database entities and their relationships |
+| D06-D07 | User navigation and feature/database ownership |
+| D08-D10 | Dashboard, exploration/comparison and scenario evidence workflows |
+| D11 | Evidence-grounded assistant, retrieval and original-source citations |
+| D12-D13 | Scientific ingestion, curation and many-to-many claim provenance |
+| D14-D15 | Guarded predictive execution and implementation dependencies |
 
-Frontend sources inspected (paths relative to `../FlameInFreewall_Tourbillion/`):
+## Architecture and responsibility boundaries
 
-- `package.json`, `next.config.ts`, `src/types/index.ts`, routing under `src/app/`.
-- All four domain fixture files under `src/data/`: investigations, runs, claims and presets.
-- `src/lib/`: explorer filters, comparison utilities/CSV, ranking engine, gap matrix,
-  combustion math, predictive readiness, RAG knowledge engine and synthesis interfaces.
-- Workspace/assistant Zustand stores; dashboard KPI/domain components; explorer/detail and
-  comparison consumers; mission form/evidence/prediction panels; assistant drawer/citation UI.
-- Relevant Vitest tests for dashboard, explorer/detail, comparison, mission, gap/ranking,
-  assistant and combustion math; the frontend design specification and documentation inventory.
+Use Python, FastAPI, Poetry, PostgreSQL, SQLAlchemy 2.x asynchronous sessions, asyncpg,
+Alembic, Pydantic v2/pydantic-settings, pytest, HTTPX and Ruff. Supported runtime and
+compatible dependency versions are declared in `pyproject.toml` and pinned by `poetry.lock`.
 
-The actual frontend uses **Next.js 15 App Router, React 19, TypeScript, Zustand, Tailwind 4,
-Framer Motion and Vitest**. D01/D02's React/Vite SPA labels are outdated. The frontend design
-spec chooses a static offline presentation; that is not the new backend's ingestion policy.
-No remote frontend page or scientific source was used to establish data authenticity.
+The backend is a modular monolith with these responsibility boundaries:
 
-## B. Finalized ERD inventory
+| Area | Responsibility |
+| --- | --- |
+| API | Versioned routes, request validation, response contracts and HTTP errors |
+| Schemas | Typed input/output data; explicit nullability and serialization rules |
+| Services | Business decisions, workflows and transaction boundaries |
+| Repositories | Async database queries and explicit relationship loading |
+| Models/database | Approved schema, referential integrity, engine/session lifecycle |
+| Integrations | NASA/source systems, object storage and provider adapters |
+| Ingestion | Parsing, unit normalization, provenance and curator review |
+| Migrations | Reviewed, versioned changes to the persistent schema |
 
-The following is a transcription of D03-D05, not an implemented schema. Repeated context
-entities in D04/D05 refer to D03 entities; they are not additional tables. Type names, PK/FK/UK
-annotations and the two explicit nullable notes are preserved. Physical SQL types, lengths,
-decimal precision/scale, most nullability, defaults, indexes, deletion policies, enum values,
-and composite uniqueness are **not specified** and must be settled before Phase 2 migrations.
+Create modules when they have real functionality. Avoid generic CRUD layers without a
+concrete use case, redundant abstractions, microservices, Kubernetes and unnecessary brokers.
+A worker, retrieval framework or external service requires an actual approved need.
+
+Keep application settings environment driven. Initialize/dispose database resources through
+application lifespan, use request-scoped sessions, and keep commits explicit at service/caller
+boundaries. Relationships must not trigger accidental synchronous or implicit async I/O.
+Apply schema changes through Alembic, not application-startup table creation.
+
+Liveness must not depend on database availability. Readiness checks the configured database
+with a bounded deadline. Return sanitized failures, keep credentials out of responses/logs,
+reject unrestricted production CORS and disable production debug. Deployment security,
+authentication and monitoring must follow explicitly agreed operational requirements.
+
+## Feature and navigation requirements
+
+| Surface | Required capability |
+| --- | --- |
+| Landing `/` | Explain the platform, scientific scope and research limitations |
+| Dashboard `/dashboard` | Catalog/source coverage aggregates, featured studies and scenario entry points |
+| Explorer `/explorer` | Search, filters, ordering, pagination and study selection |
+| Detail `/explorer/[id]` | Source-backed overview, test runs, conditions, measurements, claims and source/export access |
+| Comparison modal | Side-by-side comparison of 2-3 studies with compatible units/context and explicit caveats |
+| Mission `/mission` | Shared scenario inputs, ranked research relevance and six-dimension evidence coverage |
+| Assistant overlay | Optional study context, grounded answers, original-source citations and evidence-gap responses |
+| Predictive Lab panel | Explicit dataset/model/domain/uncertainty readiness checks before guarded execution |
+
+These are target capabilities, not a statement that any particular route or feature is
+available. Actual API availability is discoverable through OpenAPI and delivery records.
+
+## Approved logical ERD inventory
+
+The following transcribes D03-D05. Repeated context entities in those diagrams refer to the
+same tables, giving 21 distinct entities. Logical types, PK/FK/UK annotations and explicit
+optional relationships are retained exactly. Physical type mappings, nullability, defaults,
+indexes and deletion policies require an explicit approved decision record; implementations
+must not infer additional columns or constraints merely from table names or frontend mocks.
 
 ### Must have (D03)
-
 | Entity | Columns exactly as shown in ERD |
 | --- | --- |
 | INVESTIGATION | `uuid id PK`; `string psi_id UK`; `string title`; `string research_purpose`; `string platform` |
@@ -112,75 +146,49 @@ Relationships specified by the diagrams:
 There is no direct EVIDENCE_CLAIM.investigation_id, no direct claim.source_document_id, and no
 approved relationship from MEASUREMENT to SOURCE_DOCUMENT. Do not add these implicitly.
 
-## C. Current frontend modules and behavior
+## Scientific data and contract invariants
 
-| Page / surface | Current data and behavior |
-| --- | --- |
-| `/` | Static landing sections and conceptual flame/atmosphere illustrations |
-| `/dashboard` | Fixture-based study/run/claim totals, curated studies, fuel/facility breakdown, planetary presets; hardcoded `10,000+` data points and gravity coverage text |
-| `/explorer` | Local keyword search over code/title/subtitle/PI/institution/materials/tags; fuel, facility and gravity filters; newest/code/run-count/confidence sorts; grid/table display |
-| `/explorer/[id]` | Slug-based study lookup; static params from fixtures; overview, runs, telemetry, claims and PSI export tabs |
-| Comparison modal | 2-3 selected investigations; local averages/ranges/deltas/highlights and CSV export; not a separate route |
-| `/mission?view=evidence` | Shared numeric scenario form, presets, topical ranked investigations, closest run, six-dimension gap matrix |
-| `/mission?view=prediction` | Same scenario state; local deterministic readiness and spread estimate; not a validated backend model |
-| Global assistant overlay | In-memory messages and optional study context; delayed local canned/keyword synthesis with citation popovers; no real model call |
+Data flow: discover sources -> retain originals/URLs -> normalize investigation/run identity
+and original conditions/units -> review provenance and unknowns -> approved relational
+entities -> repository queries -> services -> explicit API projections -> frontend views.
 
-Fixtures contain 20 investigations, 160 run objects and 45 claim objects. Their fields may say
-`Verified`, `Measured` or `Peer-Reviewed`, but those labels are not proof. NASA PSI IDs, DOIs,
-URLs, videos and numerical findings require independent source validation before ingestion.
-`TestRun.dataStatus` distinguishes Verified/Preliminary/Simulated in TypeScript, while evidence
-badges are Measured/Modeled/Illustrative and confidence is A/B. These are different concepts.
+- Keep internal UUIDs, external NASA PSI identifiers and public URL slugs distinct. A
+  stable public slug requires an approved mapping; do not generate permanent identity from
+  mutable display titles without a collision policy.
+- Preserve original measurements, conditions, units, raw asset references, uncertainty,
+  source URLs, DOI when available and review/validation context. Unknown values remain
+  unknown; a missing observation is not zero or a nominal atmosphere.
+- Claim-document provenance is many-to-many through CLAIM_SOURCE, including locator,
+  excerpt and optional run context. A flat UI object must not discard these associations.
+- Investigation-tag classification remains many-to-many through INVESTIGATION_TAG.
+- Keep approved string gravity/ventilation fields distinct from numeric scenario UI inputs;
+  use an explicit unit-aware API mapping or seek approval for a schema change.
+- MEASUREMENT stores observables and raw asset references, not a preapproved telemetry
+  array structure. Time-series channels, sampling and asset manifests require an explicit
+  API/asset contract that preserves original data and uncertainty.
+- Chat citations identify original documents and source locators. Do not invent claim/chunk
+  foreign keys or citation metadata outside the approved schema.
+- Catalog counts, confidence badges and publication-looking identifiers do not establish
+  verification. Aggregate only data with the declared validation status and compatible units.
+- Combined scenario coverage must be supported by compatible conditions within relevant
+  runs, not independently overlapping min/max ranges from unrelated studies.
+- Relevance scores describe research similarity, never a fire probability or safety verdict.
+  Evidence gaps must reflect the curated collection's coverage, not unverified universal
+  claims about the absence of all NASA research.
+- RAG must retrieve traceable sources, check citations, distinguish support from inference
+  and explain missing evidence instead of inventing answers or references.
+- Model/training/prediction tables are storage structures. Prediction requires validated
+  datasets, versioned artifacts, applicability checks and defensible uncertainty. Demo
+  equations or hardcoded intervals do not constitute scientific validation.
 
-Local algorithms currently include:
+## API contract baseline
 
-- `rankingEngine.ts`: weighted gravity/material/O2/pressure/airflow similarity (weights
-  1.0/1.5/1.0/0.8/0.8), catalog-range distances, string material matching, deterministic code
-  tiebreak; closest run uses O2/pressure/flow distance, omitting gravity/material in that step.
-- `gapMatrixEngine.ts`: hardcoded domain thresholds/material vocabulary and six statuses;
-  partial-gravity threshold is `0.01 < g < 0.98`, narrower than displayed `0 < g < 1`.
-  Matched-run count checks gravity/material/O2 only, omitting pressure/flow and validation status.
-- `comparisonUtils.ts`: metrics include all fixture runs; verified-run count falls back to
-  declared catalog run count when zero verified runs exist. This can overstate validation.
-- `TelemetryPane.tsx`: reads embedded telemetry, otherwise constructs smooth sine-based
-  temperature/radius/soot curves with default values. Such fallback curves are simulated.
-- `combustionMath.ts`: hand-set material constants and deterministic shape, soot, temperature,
-  spread and partial-pressure calculations; these are demo logic, not validated science.
-- `predictiveLabEngine.ts`: hardcoded model label `NASA-PSI-SPM v2.4` and fixed +/-14% bounds;
-  checks permit 7-16 psia while displayed domain says 8.2-14.7 psia. Validation artifacts are absent.
-- `ragKnowledgeEngine.ts` / `ragSyntheses.ts`: topic routing, canned prose, keyword scores,
-  investigation/claim fixture citations and propulsion scope guardrail; no document chunks,
-  embeddings, citation validation against originals, provider call or durable chat storage.
-
-Frontend tests document expected UI behavior (including 20/160/45 totals, gap warnings, ranking
-stability, CSV and prediction locks). They do not establish scientific correctness. They were
-inspected, not rerun or modified as part of this backend-only phase.
-
-## D. Data flow and scientific integrity
-
-Current flow: static TypeScript fixtures -> local filtering/aggregation/scoring -> Zustand
-scenario/comparison/chat state -> React views and browser downloads. The inspected `src/`
-contains no business API fetch/axios integration. Assistant latency and explorer loading are
-simulated with timers.
-
-Planned flow: PSI/source discovery -> retain originals and URLs -> normalize identifiers and
-run conditions with units -> review source linkage and unknowns -> approved PostgreSQL entities
--> repository queries -> services -> versioned API DTOs -> frontend adapters. RAG later reads
-source-linked chunks/reviewed claims, validates citations, and stores messages/source locators.
-
-Claims must retain all source associations, exact source locator/excerpt, experimental context,
-DOI when available, uncertainty and limitations. An evidence-backed finding in one run does
-not establish safety in another mission scenario. Future APIs must distinguish source-backed
-verified data, preliminary findings, simulated/demo content and unsupported conclusions.
-Do not infer these states from an A/B tier or a publication-looking DOI. Missing measurements
-and conditions remain null/unknown, rather than defaulting to zero or a nominal atmosphere.
-Combined coverage requires compatible conditions within the same relevant run, not separate
-catalog min/max ranges taken across unrelated runs. Research matching scores are relevance,
-never probabilities of fire or operational risk ratings.
-
-## E. Preliminary API contract proposal (not implemented)
+The following is the preliminary integration contract. Implementation status is tracked
+separately; implementing an endpoint does not require changing this baseline. Changes to
+names, semantics, identity, units or response contracts require explicit agreement.
 
 All paths below are under `/api/v1`. Proposed JSON uses camelCase to fit TypeScript interfaces;
-ORM attributes remain independent. An explicit frontend adapter is still required for identity,
+ORM attributes remain independent. An explicit frontend adapter is required for identity,
 nullability and multi-source evidence. Version and finalize DTOs before implementing endpoints.
 Lists use `{items, total, offset, limit}` with proposed defaults offset 0, limit 20, max 100;
 unknown filters/identifiers produce validation/404 errors rather than silent substitutions.
@@ -188,27 +196,26 @@ unknown filters/identifiers produce validation/404 errors rather than silent sub
 | Frontend surface | Proposed endpoint | Inputs | Response / UI types | ERD entities | Priority |
 | --- | --- | --- | --- | --- | --- |
 | Dashboard | `GET /dashboard/summary` | Optional validated catalog filters | `{investigationCount, runCount, verifiedRunCount, claimCount, sourceCoverage, fuelDistribution, facilityDistribution, featuredInvestigations, caveats}`; counts only from curated data | INVESTIGATION, TEST_RUN, TEST_CONDITION, SOURCE_DOCUMENT, EVIDENCE_CLAIM, CLAIM_SOURCE, TAG | Phase 4 |
-| Explorer | `GET /investigations` | `q`, `fuel=solid|droplet|gas`, `facility=CIR|MSG|Cygnus`, `gravity=0g|1g|partial`, `sort=newest|code-asc|runs-desc|confidence`, offset/limit; future purpose/source/evidence filters | Paginated Investigation DTOs and available facets; metadata-dependent filters pending resolution | INVESTIGATION, TAG, INVESTIGATION_TAG, TEST_RUN, TEST_CONDITION, SOURCE_DOCUMENT | Phase 4 |
+| Explorer | `GET /investigations` | `q`, `fuel=solid|droplet|gas`, `facility=CIR|MSG|Cygnus`, `gravity=0g|1g|partial`, `sort=newest|code-asc|runs-desc|confidence`, offset/limit; additional purpose/source/evidence filters by agreement | Paginated Investigation DTOs and available facets; metadata-dependent filters require approved mappings | INVESTIGATION, TAG, INVESTIGATION_TAG, TEST_RUN, TEST_CONDITION, SOURCE_DOCUMENT | Phase 4 |
 | Detail | `GET /investigations/{uuid}` | Canonical UUID | Investigation DTO, completeness/caveats; 404 if unknown | INVESTIGATION, TEST_RUN, TEST_CONDITION, SOURCE_DOCUMENT, CLAIM_SOURCE | Phase 4 |
-| Existing public detail URLs | `GET /investigations/by-slug/{slug}` | Explicit public slug | Same DTO with distinct UUID, slug and psiId; mapping policy requires decision | INVESTIGATION plus reviewed identity mapping | Phase 4 |
-| Runs tab | `GET /investigations/{uuid}/runs` | Pagination; optional validated status/material | TestRun DTOs with conditions/measurements, units, provenance and missing-data status | TEST_RUN, TEST_CONDITION, MEASUREMENT; validation linkage unresolved | Phase 4 |
-| Telemetry tab | `GET /runs/{uuid}/telemetry` | Optional time range/channel list and bounded/downsampled point limit | `{runId, series, units, rawAssetRef, dataStatus, provenance, caveats}`; series fits TelemetryDataPoint when actual channels exist | MEASUREMENT.raw_asset_ref, TEST_RUN; time-series metadata unresolved | Phase 4 |
+| Public detail URLs | `GET /investigations/by-slug/{slug}` | Explicit public slug | Same DTO with distinct UUID, slug and psiId; mapping policy requires decision | INVESTIGATION plus reviewed identity mapping | Phase 4 |
+| Runs tab | `GET /investigations/{uuid}/runs` | Pagination; optional validated status/material | TestRun DTOs with conditions/measurements, units, provenance and missing-data status | TEST_RUN, TEST_CONDITION, MEASUREMENT; validation linkage requires an approved provenance policy | Phase 4 |
+| Telemetry tab | `GET /runs/{uuid}/telemetry` | Optional time range/channel list and bounded/downsampled point limit | `{runId, series, units, rawAssetRef, dataStatus, provenance, caveats}`; series fits TelemetryDataPoint when actual channels exist | MEASUREMENT.raw_asset_ref, TEST_RUN; time-series metadata requires an approved asset contract | Phase 4 |
 | Claims tab | `GET /investigations/{uuid}/claims` | Pagination; optional category/review filter once vocabulary approved | Canonical claim DTOs with `sources[]` (document, locator, excerpt, optional run); no loss of associations | EVIDENCE_CLAIM, CLAIM_SOURCE, SOURCE_DOCUMENT, TEST_RUN | Phase 4 |
 | PSI/export tab | `GET /investigations/{uuid}/sources` | Pagination | Original source URLs, DOI, document type/version/status; browser JSON/CSV export can remain local over API DTOs | SOURCE_DOCUMENT, INVESTIGATION | Phase 4 |
 | Comparison modal | `POST /compare` | `{investigationIds: UUID[2..3]}` distinct; explicit measurement/status filters | `{studies, metrics, deltas, highlights, caveats}` following comparisonUtils type shapes; separate verified/unknown counts and compatible-unit/context summaries | INVESTIGATION, TEST_RUN, TEST_CONDITION, MEASUREMENT, SOURCE_DOCUMENT, CLAIM_SOURCE | Phase 4 |
 | Mission form | `GET /scenario-presets` (optional) | None | Reviewed or explicitly illustrative ScenarioPreset DTOs; UI-only presets may stay local | SCENARIO if persisted; no preset table approved | Phase 5 |
 | Mission evidence | `POST /scenarios/analyze` | `{scenario: ScenarioInput}`; optional reviewed ranking configuration later | `{scenarioId, rankings: RankedInvestigation[], gapMatrix: GapMatrixResult, engineVersion, provenance, caveats}`; run-level match details retained | SCENARIO, SCENARIO_MATCH, MATCH_DIMENSION, TEST_RUN, TEST_CONDITION, CLAIM_SOURCE, SOURCE_DOCUMENT | Phase 5 |
 | Global assistant | `POST /ask` | `{question, sessionId?, investigationId?}` with length/context limits | `{sessionId, message: ChatMessage, suggestedQuestions, isOutOfScope?, provenance}`; citations carry source document/URL/locator plus optional claim/run context | CHAT_SESSION, CHAT_MESSAGE, MESSAGE_CITATION, DOCUMENT_CHUNK, SOURCE_DOCUMENT, CLAIM_SOURCE, EVIDENCE_CLAIM | Phase 6 |
-| Lab inline panel | Future readiness endpoint only after validation design | ScenarioInput | PredictiveLabAudit plus artifact provenance; blocked when prerequisites absent; no prediction route in Phase 1 | MODEL_VERSION, MODEL_TRAINING_RUN, PREDICTION_RESULT, SCENARIO | Phase 7 |
+| Lab inline panel | Readiness endpoint subject to validation design | ScenarioInput | PredictiveLabAudit plus artifact provenance; blocked when prerequisites absent; execution requires validated data, model and applicability domain | MODEL_VERSION, MODEL_TRAINING_RUN, PREDICTION_RESULT, SCENARIO | Phase 7 |
 
 Contract mapping details:
 
 - **Investigation DTO:** preserve code/title/researchPurpose/platform and nested UI fields
   (`fuelDetails`, ranges, variables, findings, dataAvailability, sources, tags) where backed
-  by reviewed data. Add canonical `id: UUID`, `slug: string`, `psiId: string`. The current
-  frontend uses `id` as a slug, so its adapter must provide `id = dto.slug` for existing routes
+  by reviewed data. Add canonical `id: UUID`, `slug: string`, `psiId: string`. The frontend compatibility contract uses `id` as a slug, so its adapter must provide `id = dto.slug` for existing routes
   and carry `dto.id` separately for API calls. A versioned API can make this explicit without
-  rewriting database identity. Slug and most display metadata have no approved storage yet.
+  rewriting database identity. Slug and rich display metadata are not columns in the original ERD; their storage requires an approved mapping or schema change.
 - **Run DTO:** `id` is UUID; retain `externalRunKey` separately from UI demo identifiers.
   Map known TEST_CONDITION.variable/unit pairs into oxygenPct, pressurePsi, flowVelocityCmS,
   radiantFluxKWPerM2, ambientTempK, gravityG. Map MEASUREMENT.observable/unit pairs into
@@ -222,7 +229,7 @@ Contract mapping details:
   a UI extension or explicitly labeled primary-source projection is needed. Never discard links.
 - **ScenarioInput:** name, environment (`iss|lunar|mars|earth|custom`), numeric gravity in g,
   oxygenPct (%), pressurePsi (absolute psi), material, numeric airflowVelocity (cm/s), optional
-  description. Current form ranges: g 0-1, O2 15-40, pressure 7-16, airflow 0-50; these are UI
+  description. Baseline form ranges: g 0-1, O2 15-40, pressure 7-16, airflow 0-50; these are UI
   limits, not validated scientific applicability limits. Reject non-finite inputs. Do not persist
   a preset slug as a UUID. Storage conversion for gravity/ventilation requires agreement first.
 - **Gap/ranking DTOs:** preserve six dimension names (gravity/material/oxygen/pressure/airflow/
@@ -233,72 +240,64 @@ Contract mapping details:
   (`timestamp`), UUID -> id, role user/assistant. Enrich MESSAGE_CITATION through its document
   and investigation to fit AiCitation; claimId cannot be persisted as a citation FK under the
   current ERD. Retain all original source links and locators, with an evidenceGapWarning when
-  applicable. Streaming/session history endpoints are separate future decisions, not required
-  by the currently simulated streaming indicator.
-- **Nullability:** current required TypeScript fields exceed available schema and data. Extend
+  applicable. Streaming and session-history endpoints require explicit contracts; a UI streaming indicator alone does not define those requirements.
+- **Nullability:** required TypeScript display fields must not force unavailable source data into the database. Extend
   the frontend adapter/types to support unknowns when integrating; do not manufacture PI names,
   ranges, geometry, findings, confidence tiers or source titles. Decimal-to-JSON conversion needs
   an explicit precision policy; UI numeric values must not silently round scientific originals.
 
-## F. Inconsistencies and decisions needed before later phases
+## Compatibility decisions and change control
 
-| Issue | Evidence / impact | Proposed resolution requiring agreement where schema changes are involved |
+The original ERD does not define storage for every frontend display field, a permanent public
+slug, boolean observation encoding or complete measurement/source validation linkage.
+Maintain explicit mappings for these gaps. A frontend-required field is not authorization
+to invent scientific values or add a database column. Record decisions about physical types,
+nullability, units, provenance, enums and constraints before applying the affected migrations.
+
+Source models and API projection models have different responsibilities. Preserve all source
+associations and original values in persistence while presenting a deliberate, versioned
+contract to the frontend. Any changes to approved columns, cardinality or citation identity
+must be reviewed as requirement/schema changes, rather than hidden inside implementation work.
+
+## Delivery roadmap and dependencies
+
+The phase numbering below defines scope and dependency order. It is not a progress checklist;
+completion status and executed results belong in phase-specific records.
+
+| Phase | Scope | Delivery requirement |
 | --- | --- | --- |
-| Framework labels | D01/D02 say Vite; package/config/routes use Next.js | Treat actual code as UI behavior reference; update diagrams only if requested |
-| Missing linked diagram files | All 15 `.mmd` download targets are absent | Embedded Mermaid is available; restore download assets separately only if requested |
-| Physical schema unspecified | ERD has generic string/decimal/datetime; few nullability/constraint details | Agree types, precision, timezone, nullable fields, uniqueness, FK deletion rules and indexes before migrations |
-| Slug vs UUID vs PSI ID | Frontend `bass`, DB id UUID, psi_id unique; no slug column | Reviewed explicit mapping/registry or approved slug column; never derive persistent slugs from mutable titles without a collision policy |
-| Rich catalog metadata | No ERD PI/institution/hardware/year/fuel category/findings/citation title/authors columns | Derive only supportable aggregates/tags; agree source metadata storage or schema extension; support unknown fields |
-| Numeric scenario fields | SCENARIO.gravity/ventilation and TEST_RUN.gravity are strings | Agree a reversible canonical text/unit encoding or request numeric/unit schema changes; no ad-hoc coercion implemented |
-| Flat claims vs N:N provenance | UI claim has one investigation, optional run and singular DOI/locator | Query through CLAIM_SOURCE; preserve sources[] and review scope; no relationship flattening |
-| Claim categories/context/publication metadata | UI scientificContext/category/authors/year absent from claim/document ERD | Review explicit metadata strategy; don't equate publication type with curation status |
-| Telemetry storage | MEASUREMENT holds scalar value/unit/raw_asset_ref/uncertainty; no timestamp/channel-series schema | Retain originals as assets, parse bounded validated series for API; agree asset manifest/time metadata and boolean observation encoding |
-| Validation/provenance coverage | data_status exists on TEST_CONDITION, not TEST_RUN/MEASUREMENT; no measurement-source FK | Define auditable validation/provenance policy or seek approved additions before asserting run/measurement verification |
-| Match aggregation | DB matches runs, frontend ranks investigations and shows richer dimension values | Persist per-run matches; deterministic aggregation; compute display values without adding unapproved columns |
-| Citation richness | MESSAGE_CITATION references documents, not chunks/claims; UI citations show claims | Preserve document+locator traceability; approve richer linkage if durable claim/chunk identity is required |
-| Demo verified counts | Comparison fallback counts catalog runs as verified; outcome means include all runs | Count actual validated runs; filter compatible observations; return null for unavailable outcomes |
-| Hardcoded scientific claims | Fixtures/spec label sources/model as verified; artifacts not validated | No seeding as verified research. Curator validation with original records and artifacts in Phases 3/7 |
-| Gap threshold/count mismatch | Display 0<g<1 vs implemented 0.01<g<0.98; count omits pressure/flow/status | Define evidence-backed matching tolerances and same-run combined coverage; never claim a universal NASA data absence from local catalog coverage |
-| Predictive mismatch | Fixed model/version/interval; domain text differs from code | Keep backend prediction absent; require real model training, validation metrics and domain checks in Phase 7 |
-| Dashboard filter handoff | DomainBreakdown updates workspace filter, Explorer uses separate local filter state | Agree a future shared state/query adapter; frontend unchanged here |
-| UI navigation vs diagram tabs | D09 lists Overview/Conditions/Evidence, actual detail has five tabs | API supports actual consumers; no forced route/tab redesign |
+| 1 | Backend foundation | Configuration, FastAPI lifecycle, health/readiness, CORS, async database access, Alembic, Poetry and tests |
+| 2 | Approved ERD and migrations | All 21 entities, approved physical mapping, typed schemas, meaningful repositories and migration/relationship tests |
+| 3 | Scientific ingestion and source validation | Retain originals, deduplicate PSI identities, normalize units, validate provenance and preserve unknowns |
+| 4 | Catalog and comparison APIs | Dashboard, explorer/detail/run/source/telemetry contracts and scientifically compatible comparisons |
+| 5 | Scenario matching and gaps | Validated inputs, reproducible run-level matching, versioned relevance and same-run coverage explanations |
+| 6 | Evidence-grounded assistant | Source/chunk retrieval, reviewed claims, citation validation, abstention and chat persistence |
+| 7 | Predictive Lab | Validated datasets/models, training provenance, applicability and uncertainty before execution |
+| 8 | Deployment and integration | HTTPS, environment-specific configuration, secret management, migrations, monitoring and frontend integration |
 
-No ambiguity above blocks a model-free Phase 1. They must not be resolved by silently changing
-the approved ERD or by duplicating static frontend fixtures in PostgreSQL.
+Ingestion and source validation precede scientific aggregates and evidence matching.
+Reviewed source provenance precedes grounded answers. Validated data and model artifacts
+precede prediction. Deployment needs may be addressed alongside these stages when requested,
+without changing their scientific validation requirements.
 
-## G. Backend phases and responsibilities
+## Verification and documentation requirements
 
-1. **Foundation (implemented here):** Poetry, configuration, FastAPI lifespan, health/readiness,
-   explicit CORS, async engine/session dependency, declarative base, Alembic, Compose and tests.
-2. **Approved ERD and migrations:** settle physical schema and identity/unit/provenance questions,
-   implement the 21-table design by agreed priority, review migrations and relationship tests.
-3. **Scientific ingestion/source validation:** retain originals, deduplicate PSI records, normalize
-   units without losing originals, curate source associations, preserve unknowns and validation state.
-4. **Catalog APIs:** dashboard, explorer, detail/run/source/telemetry and comparison read contracts;
-   response adapter/nullability agreement and scientifically compatible aggregation.
-5. **Scenario evidence:** validated inputs, reproducible run-level matching, versioned relevance,
-   same-run condition coverage and transparent evidence gaps; no operational safety decisions.
-6. **Grounded assistant:** document/chunk retrieval, reviewed claim provenance, citation checking,
-   abstention, context/session/message persistence and source-supported/inference/gap labels.
-7. **Predictive Lab:** only after datasets, artifacts, model versions, validation, applicability and
-   uncertainty are demonstrably available. Demo equations are not training/validation evidence.
-8. **Deployment/monitoring/integration:** HTTPS backend, secret management, environment-specific
-   origins, authentication/rate limits as needed, deployment migrations, monitoring and frontend URL.
+Verify each delivery with checks appropriate to its behavior: model/key/cardinality tests,
+clean-database migration checks, schema drift inspection, async repository operations,
+request/response validation, source traceability and integration behavior. Use separate
+PostgreSQL test databases; never reset, truncate or overwrite development data during tests.
+Do not report checks as passed unless they were executed.
 
-Routes will delegate business decisions to services and persistence queries to repositories.
-Integration adapters will own NASA/provider access; ingestion will own parsing and curation.
-Those packages should be added with real functionality, not unused Phase 1 placeholders.
-No message broker, Celery, microservice, RAG framework or prediction code is needed now.
+The documentation responsibilities remain stable:
 
-## Phase 1 architecture decisions
+- `README.md`: project purpose, technology, setup, configuration and common development workflow.
+- `docs/backend-implementation-plan.md`: requirements, architecture, ERD/API mapping and roadmap.
+- `docs/index.html`: original approved architecture and logical ERD reference.
+- `docs/phase-*.md`: scoped implementation details, decisions/approvals, changed files,
+  migration revisions, test results, limitations and handoff notes for each delivery.
 
-The app factory accepts settings for dependency-isolated testing. Lifespan initializes a lazy
-engine and disposes it on shutdown; a database outage does not block liveness/docs. Readiness
-uses a bounded SELECT 1. Async sessions close through a request dependency with no implicit
-commit. SQL echo is disabled, parameters are hidden, and readiness/general error responses
-are sanitized. Production debug is rejected. CORS permits explicit origins only.
-
-SQLAlchemy metadata is empty and Alembic has no revisions. The local database runs alone in
-Docker with persistent storage and conservative resources. Poetry owns `.venv/`, runtime and
-dev groups, with a generated lockfile. No science data or business endpoints were implemented.
-See [verification results](phase-1-verification.md) for actual checks and environment blockers.
+Do not append completion notes, test totals, local machine incidents, temporary blockers,
+commit hashes or implementation snapshots to README or this plan. Update these two baseline
+files only for an explicit user-requested or user-approved requirement/contract change.
+Do not modify unrelated projects, alter original diagrams, commit or push without the
+applicable user authorization.
