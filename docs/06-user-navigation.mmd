@@ -1,0 +1,36 @@
+flowchart TB
+  subgraph frame["D06 — USER NAVIGATION + INFORMATION ARCHITECTURE"]
+    direction TB
+    landing(["Landing page /"])
+    sections["Science / Platform / Evidence sections"]
+    dashboard["Research Dashboard /dashboard [M]"]
+    explorer["Experiment Explorer /explorer [M]"]
+    detail["Investigation Detail /explorer/:id [M]"]
+    compare["Comparison modal within Explorer [S]"]
+    mission["Mission Scenario /mission [M]"]
+    evidence["Inline evidence results [M]"]
+    prediction["Inline Predictive Lab [C]"]
+    assistant["Floating AI assistant across pages [S]"]
+    landing -->|"Nav click: smooth scroll"| sections
+    landing -->|"Open workspace"| dashboard
+    dashboard --> explorer
+    dashboard --> mission
+    explorer -->|"Select row"| detail
+    detail -->|"Back"| explorer
+    detail -->|"Compare study"| explorer
+    explorer -->|"Select 2+ then Compare"| compare
+    compare -->|"Close overlay"| explorer
+    mission -->|"Analyze NASA evidence"| evidence
+    mission -->|"Predictive Lab"| prediction
+    evidence -->|"Switch panel"| prediction
+    prediction -->|"Switch panel"| evidence
+    detail -.-> assistant
+    dashboard -.-> assistant
+    explorer -.-> assistant
+    mission -.-> assistant
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style landing fill:#DBEAFE,stroke:#60A5FA
+  style compare fill:#EDE9FE,stroke:#A78BFA
+  style assistant fill:#EDE9FE,stroke:#A78BFA
+  style prediction fill:#FEF3C7,stroke:#F59E0B

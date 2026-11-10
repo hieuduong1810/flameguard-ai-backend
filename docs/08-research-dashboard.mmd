@@ -1,0 +1,29 @@
+flowchart TB
+  subgraph frame["D08 — RESEARCH DASHBOARD DATA + INTERACTIONS | Must Have"]
+    direction TB
+    load(["Open Research Dashboard"])
+    catalog[("Curated INVESTIGATION catalog")]
+    source[("SOURCE_DOCUMENT linkage status")]
+    aggregate["Aggregate catalog metadata"]
+    cards["Counters + research distribution + source coverage"]
+    flame["Conceptual Earth / Lunar / Micro flame UI"]
+    filter["Click research focus segment"]
+    detail["Click featured study"]
+    mission["Explore mission scenario"]
+    warning["Data caveat: not flame-risk measurements"]
+    load --> aggregate
+    catalog --> aggregate
+    source --> aggregate
+    aggregate --> cards
+    load --> flame
+    cards --> filter
+    filter -->|"Purpose query"| explorer["Explorer filtered catalog"]
+    cards --> detail
+    detail --> study["Investigation Detail"]
+    flame --> warning
+    cards --> warning
+    load --> mission
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style flame fill:#DBEAFE,stroke:#60A5FA
+  style warning fill:#FEF3C7,stroke:#F59E0B

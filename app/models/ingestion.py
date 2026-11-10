@@ -1,4 +1,4 @@
-"""Approved ERD entities; physical choices are recorded in docs/database-implementation.md."""
+"""Approved ERD entities; physical choices are in docs/phase-2-database-implementation.md."""
 
 from __future__ import annotations
 

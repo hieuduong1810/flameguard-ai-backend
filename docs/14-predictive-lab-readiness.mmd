@@ -1,0 +1,30 @@
+flowchart TB
+  subgraph frame["D14 — PREDICTIVE LAB READINESS + GUARDED EXECUTION | Could Have"]
+    direction TB
+    inputs(["Reuse Mission Scenario inputs"])
+    openLab["Open inline Predictive Lab panel"]
+    prepared{"Verified run-level training data?"}
+    trained{"Validated model version available?"}
+    domain{"Scenario inside model applicability domain?"}
+    blocked["Keep Run Prediction disabled; show missing requirements"]
+    execute["Run versioned scientific model"]
+    outputs["Show prediction + uncertainty + model scope"]
+    records[("MODEL_VERSION + MODEL_TRAINING_RUN + PREDICTION_RESULT")]
+    warning["Never issue operational safe / unsafe certification"]
+    inputs --> openLab
+    openLab --> prepared
+    prepared -->|"No"| blocked
+    prepared -->|"Yes"| trained
+    trained -->|"No"| blocked
+    trained -->|"Yes"| domain
+    domain -->|"No"| blocked
+    domain -->|"Yes"| execute
+    execute --> records
+    records --> outputs
+    outputs --> warning
+    blocked --> warning
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style blocked fill:#FEF3C7,stroke:#F59E0B
+  style execute fill:#DCFCE7,stroke:#4ADE80
+  style warning fill:#FEE2E2,stroke:#F87171

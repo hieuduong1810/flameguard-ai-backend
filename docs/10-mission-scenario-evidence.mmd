@@ -1,0 +1,36 @@
+flowchart TB
+  subgraph frame["D10 — MISSION SCENARIO + EVIDENCE GAPS | Must Have"]
+    direction TB
+    open(["Open Mission Scenario /mission"])
+    configure["One shared form: environment + gravity + O2 + psi + material + airflow"]
+    action{"Choose research action"}
+    evidence["Analyze NASA evidence [M]"]
+    prediction["Predictive Lab panel [C]"]
+    scenario[("SCENARIO + SCENARIO_MATCH")]
+    runData[("TEST_RUN + TEST_CONDITION + SOURCE_DOCUMENT")]
+    dimensions[("MATCH_DIMENSION details [S]")]
+    ranking["Rank topical relevance, not fire risk"]
+    gaps["Check gravity / material / O2 / pressure / airflow / combined match"]
+    panel["Inline ranked studies + gap matrix [M]"]
+    detail["Open study detail in Explorer"]
+    chat["Open floating AI research assistant"]
+    caution["No safe / unsafe conclusion"]
+    open --> configure
+    configure --> action
+    action --> evidence
+    action -.-> prediction
+    evidence --> scenario
+    scenario --> ranking
+    runData --> ranking
+    ranking --> gaps
+    dimensions -.-> gaps
+    gaps --> panel
+    panel --> detail
+    panel --> chat
+    panel --> caution
+    prediction -.->|"Same scenario inputs"| configure
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style panel fill:#DCFCE7,stroke:#4ADE80
+  style prediction fill:#EDE9FE,stroke:#A78BFA
+  style caution fill:#FEE2E2,stroke:#F87171

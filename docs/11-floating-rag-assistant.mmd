@@ -1,0 +1,32 @@
+flowchart TB
+  subgraph frame["D11 — GLOBAL AI RAG + CITATION FLOW | Should Have"]
+    direction TB
+    ask(["Click floating AI icon from any route"])
+    context["Chat overlay + optional study context"]
+    question["User question / follow-up"]
+    retrieval["Query metadata + retrieve document chunks"]
+    source[("DOCUMENT_CHUNK + SOURCE_DOCUMENT")]
+    claim[("CLAIM_SOURCE + reviewed EVIDENCE_CLAIM")]
+    evidence{"Relevant traceable evidence found?"}
+    llm["Grounded LLM synthesis + source checks"]
+    answer["Answer with source-supported / inference / gap labels"]
+    citation["Inline citation + original NASA source link"]
+    insufficient["Explain evidence gap; do not invent citations"]
+    session[("CHAT_SESSION + CHAT_MESSAGE + MESSAGE_CITATION")]
+    ask --> context
+    context --> question
+    question --> retrieval
+    source --> retrieval
+    claim -.-> retrieval
+    retrieval --> evidence
+    evidence -->|"Yes"| llm
+    llm --> answer
+    answer --> citation
+    evidence -->|"No"| insufficient
+    answer -.-> session
+    insufficient -.-> session
+    citation -->|"Open study"| detail["Explorer child detail"]
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style context fill:#EDE9FE,stroke:#A78BFA
+  style insufficient fill:#FEF3C7,stroke:#F59E0B

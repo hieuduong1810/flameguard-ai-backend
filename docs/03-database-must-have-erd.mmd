@@ -1,0 +1,90 @@
+erDiagram
+  %% D03 — DATABASE ERD: MUST HAVE | Core Research + Evidence + Scenario
+  direction LR
+  INVESTIGATION ||--o{ TEST_RUN : contains
+  INVESTIGATION ||--o{ SOURCE_DOCUMENT : documents
+  TEST_RUN ||--o{ TEST_CONDITION : specifies
+  TEST_RUN ||--o{ MEASUREMENT : records
+  EVIDENCE_CLAIM ||--o{ CLAIM_SOURCE : backed_by
+  SOURCE_DOCUMENT ||--o{ CLAIM_SOURCE : cites
+  TEST_RUN o|..o{ CLAIM_SOURCE : optional_run
+  SCENARIO ||--o{ SCENARIO_MATCH : evaluates
+  TEST_RUN ||--o{ SCENARIO_MATCH : compared_to
+
+  INVESTIGATION {
+    uuid id PK
+    string psi_id UK
+    string title
+    string research_purpose
+    string platform
+  }
+  TEST_RUN {
+    uuid id PK
+    uuid investigation_id FK
+    string external_run_key
+    string material_type
+    string sample_geometry
+    string gravity
+  }
+  TEST_CONDITION {
+    uuid id PK
+    uuid test_run_id FK
+    string variable
+    decimal value_numeric
+    string value_text
+    string unit
+    string data_status
+  }
+  MEASUREMENT {
+    uuid id PK
+    uuid test_run_id FK
+    string observable
+    decimal measured_value
+    string unit
+    string raw_asset_ref
+    decimal uncertainty
+  }
+  SOURCE_DOCUMENT {
+    uuid id PK
+    uuid investigation_id FK
+    string source_url
+    string doi
+    string document_type
+    string version
+    string ingestion_status
+  }
+  EVIDENCE_CLAIM {
+    uuid id PK
+    string claim_text
+    string evidence_status
+    string review_status
+    string limitation
+    datetime created_at
+  }
+  CLAIM_SOURCE {
+    uuid id PK
+    uuid claim_id FK
+    uuid source_document_id FK
+    uuid test_run_id FK "Nullable"
+    string source_locator
+    string source_excerpt
+  }
+  SCENARIO {
+    uuid id PK
+    string name
+    string environment
+    string gravity
+    decimal oxygen_pct
+    decimal pressure_psi
+    string material
+    string ventilation
+  }
+  SCENARIO_MATCH {
+    uuid id PK
+    uuid scenario_id FK
+    uuid test_run_id FK
+    string match_status
+    decimal score
+    string explanation
+    string engine_version
+  }

@@ -1,0 +1,68 @@
+flowchart LR
+  subgraph frame["D02 — DETAILED LOGICAL COMPONENT ARCHITECTURE"]
+    direction LR
+    subgraph ui["FRONTEND — REACT / VITE SPA"]
+      dashboardUi["Dashboard + catalog charts [M]"]
+      explorerUi["Explorer + detail + Compare modal [M/S]"]
+      missionUi["Mission form + inline Evidence / Lab [M/C]"]
+      assistantUi["Global AI chat dock [S]"]
+    end
+    subgraph apiLayer["BACKEND — FASTAPI MODULAR MONOLITH"]
+      api["REST routes + input validation [M]"]
+      catalogApi["Catalog + test-run queries [M]"]
+      scenarioApi["Scenario matching + compare [M/S]"]
+      ragApi["RAG orchestration + citation gateway [S]"]
+      importWorker["PSI import + curator review [M/S]"]
+      modelAdapter["Prediction adapter [C]"]
+    end
+    subgraph logic["EVIDENCE INTELLIGENCE — RULES + AI"]
+      ranking["Explainable relevance ranking [M]"]
+      gaps["Condition gap detection [M]"]
+      grounding["Source retrieval + citation validation [S]"]
+      modelCheck["Model scope + uncertainty checks [C]"]
+    end
+    subgraph persistence["DATA — NORMALIZED & TRACEABLE"]
+      catalogDb[("INVESTIGATION + TAG [M/S]")]
+      runDb[("TEST_RUN + CONDITION + MEASUREMENT [M]")]
+      evidenceDb[("SOURCE_DOCUMENT + CLAIM + CLAIM_SOURCE [M]")]
+      scenarioDb[("SCENARIO + SCENARIO_MATCH + MATCH_DIMENSION [M/S]")]
+      searchDb[("Document chunks + semantic index [S]")]
+      modelDb[("Model versions + predictions [C]")]
+    end
+    subgraph external["EXTERNAL + SOURCE INGESTION"]
+      nasa["NASA PSI public repository"]
+      llm["LLM provider [S]"]
+    end
+    dashboardUi --> api
+    explorerUi --> api
+    missionUi --> api
+    assistantUi --> api
+    api --> catalogApi
+    api --> scenarioApi
+    api --> ragApi
+    api -.-> modelAdapter
+    catalogApi --> catalogDb
+    catalogApi --> runDb
+    scenarioApi --> ranking
+    scenarioApi --> gaps
+    ranking --> scenarioDb
+    gaps --> scenarioDb
+    gaps --> runDb
+    ragApi --> grounding
+    grounding --> evidenceDb
+    grounding --> searchDb
+    ragApi -.-> llm
+    importWorker -.-> nasa
+    importWorker --> catalogDb
+    importWorker --> runDb
+    importWorker --> evidenceDb
+    importWorker --> searchDb
+    modelAdapter -.-> modelCheck
+    modelCheck -.-> modelDb
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style ui fill:#DBEAFE,stroke:#60A5FA
+  style apiLayer fill:#EDE9FE,stroke:#A78BFA
+  style logic fill:#F5E8FF,stroke:#C084FC
+  style persistence fill:#DCFCE7,stroke:#4ADE80
+  style external fill:#FFF7ED,stroke:#FB923C

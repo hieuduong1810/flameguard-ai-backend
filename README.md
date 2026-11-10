@@ -16,6 +16,9 @@ and temporary environment issues belong in separate phase records under [docs/](
   responsibility boundaries, approved logical entities, API mappings and delivery roadmap.
 - [Original architecture and ERD diagrams](docs/index.html): approved design reference.
 - [Implementation records](docs/): phase-specific decisions, delivered changes and executed checks.
+- [Codex instructions](AGENTS.md): agent workflow and task gates.
+- [Current project status](docs/project-status.md): phase progress, dependencies and blockers.
+- [Documentation map](docs/documentation-map.md): where Codex finds design/contracts/runbooks.
 - [Dependency configuration](pyproject.toml) and [lockfile](poetry.lock): supported runtimes
   and reproducible dependency versions.
 
@@ -27,7 +30,8 @@ records. This README does not track which roadmap phase is complete.
 Use a modular monolith with a separately deployed frontend and backend. API routes validate
 HTTP contracts; services own business workflows and transaction boundaries; repositories
 handle async queries; models and migrations define persistence; integrations and ingestion
-handle external systems, source parsing and provenance.
+handle external systems, source parsing and provenance handoff. The Data team owns NASA
+acquisition/curation/import; the backend owns its agreed compatibility checks and API integration.
 
 | Technology | Responsibility |
 | --- | --- |

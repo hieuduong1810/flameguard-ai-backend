@@ -1,0 +1,52 @@
+erDiagram
+  %% D05 — DATABASE ERD: COULD HAVE | Prediction + Ingestion Operations
+  direction LR
+  MODEL_VERSION ||--o{ MODEL_TRAINING_RUN : trained_in
+  MODEL_VERSION ||--o{ PREDICTION_RESULT : generates
+  SCENARIO ||--o{ PREDICTION_RESULT : requested_for
+  INGESTION_JOB ||--o{ IMPORT_ISSUE : reports
+
+  SCENARIO {
+    uuid id PK
+    decimal oxygen_pct
+    decimal pressure_psi
+  }
+  MODEL_VERSION {
+    uuid id PK
+    string model_name
+    string version
+    string validation_status
+    string applicability_domain
+  }
+  MODEL_TRAINING_RUN {
+    uuid id PK
+    uuid model_version_id FK
+    string training_dataset_ref
+    string metrics_ref
+    datetime trained_at
+  }
+  PREDICTION_RESULT {
+    uuid id PK
+    uuid scenario_id FK
+    uuid model_version_id FK
+    string predicted_observable
+    decimal predicted_value
+    string unit
+    decimal uncertainty
+    string applicability_status
+  }
+  INGESTION_JOB {
+    uuid id PK
+    string source_uri
+    string status
+    datetime started_at
+    datetime completed_at
+  }
+  IMPORT_ISSUE {
+    uuid id PK
+    uuid ingestion_job_id FK
+    string severity
+    string field_name
+    string explanation
+    string review_status
+  }

@@ -1,0 +1,35 @@
+flowchart TB
+  subgraph frame["D09 — EXPERIMENT EXPLORER + COMPARISON MODAL | Must / Should"]
+    direction TB
+    open(["Open Explorer /explorer"])
+    filters["Search + purpose + fuel + source filters [M]"]
+    catalog[("INVESTIGATION + TAG + SOURCE_DOCUMENT")]
+    results["Catalog rows + evidence status [M]"]
+    mode{"Comparison mode enabled?"}
+    detail["Child Investigation Detail [M]"]
+    detailTabs["Overview / Conditions / Evidence tabs"]
+    select["Tick study checkboxes [S]"]
+    enough{"At least 2 selected?"}
+    modal["Open side-by-side comparison modal [S]"]
+    export["Compare metadata + export CSV [S]"]
+    close["Close modal: return to Explorer"]
+    caveat["No numerical outcome comparison without verified runs"]
+    open --> filters
+    catalog --> results
+    filters --> results
+    results --> mode
+    mode -->|"No: click row"| detail
+    detail --> detailTabs
+    detailTabs -->|"Back / compare study"| results
+    mode -->|"Yes"| select
+    select --> enough
+    enough -->|"No"| select
+    enough -->|"Yes"| modal
+    modal --> export
+    export --> caveat
+    modal --> close
+    close --> results
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style modal fill:#EDE9FE,stroke:#A78BFA
+  style caveat fill:#FEF3C7,stroke:#F59E0B

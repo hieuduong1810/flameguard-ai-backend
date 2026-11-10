@@ -1,0 +1,70 @@
+erDiagram
+  %% D04 — DATABASE ERD: SHOULD HAVE | Tags + Gap Audit + RAG
+  direction LR
+  INVESTIGATION ||--o{ INVESTIGATION_TAG : classified_by
+  TAG ||--o{ INVESTIGATION_TAG : applied_to
+  SCENARIO_MATCH ||--o{ MATCH_DIMENSION : explains
+  SOURCE_DOCUMENT ||--o{ DOCUMENT_CHUNK : contains
+  CHAT_SESSION ||--o{ CHAT_MESSAGE : contains
+  CHAT_MESSAGE ||--o{ MESSAGE_CITATION : references
+  SOURCE_DOCUMENT ||--o{ MESSAGE_CITATION : cited_in
+  INVESTIGATION o|..o{ CHAT_SESSION : optional_context
+
+  INVESTIGATION {
+    uuid id PK
+    string psi_id UK
+  }
+  TAG {
+    uuid id PK
+    string slug UK
+    string label
+    string category
+  }
+  INVESTIGATION_TAG {
+    uuid id PK
+    uuid investigation_id FK
+    uuid tag_id FK
+  }
+  SCENARIO_MATCH {
+    uuid id PK
+    uuid scenario_id FK
+    uuid test_run_id FK
+  }
+  MATCH_DIMENSION {
+    uuid id PK
+    uuid scenario_match_id FK
+    string variable
+    string match_status
+    string gap_reason
+  }
+  SOURCE_DOCUMENT {
+    uuid id PK
+    string source_url
+  }
+  DOCUMENT_CHUNK {
+    uuid id PK
+    uuid source_document_id FK
+    int chunk_index
+    string source_locator
+    string chunk_text
+    string embedding_ref
+  }
+  CHAT_SESSION {
+    uuid id PK
+    uuid investigation_id FK "Nullable"
+    string title
+    datetime created_at
+  }
+  CHAT_MESSAGE {
+    uuid id PK
+    uuid chat_session_id FK
+    string role
+    string body
+    datetime created_at
+  }
+  MESSAGE_CITATION {
+    uuid id PK
+    uuid chat_message_id FK
+    uuid source_document_id FK
+    string source_locator
+  }

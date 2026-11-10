@@ -1,0 +1,33 @@
+flowchart TB
+  subgraph frame["D15 — IMPLEMENTATION DEPENDENCIES | Must / Should / Could"]
+    direction TB
+    subgraph must["MUST HAVE — Evidence-first foundation"]
+      ui["Dashboard + Explorer + Detail + Mission UI"]
+      schema["Catalog + run conditions + source + claims + scenario ERD"]
+      core["Validated API + source-aware search + scenario gap analysis"]
+    end
+    subgraph should["SHOULD HAVE — Research productivity"]
+      tags["Tags + classification + comparison analysis"]
+      rag["Document chunks + grounded RAG + citations"]
+      review["Human review of source links + candidate claims"]
+    end
+    subgraph could["COULD HAVE — Scientific extension"]
+      models["Model version + training provenance"]
+      prediction["Predictions with domain + uncertainty checks"]
+      importJob["Ingestion job tracking + import issues"]
+    end
+    ui --> core
+    schema --> core
+    core --> tags
+    core --> rag
+    schema --> review
+    review --> rag
+    review --> models
+    review --> importJob
+    models --> prediction
+    core --> prediction
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style must fill:#DCFCE7,stroke:#4ADE80
+  style should fill:#DBEAFE,stroke:#60A5FA
+  style could fill:#FEF3C7,stroke:#F59E0B

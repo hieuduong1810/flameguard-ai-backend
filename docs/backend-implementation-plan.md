@@ -53,7 +53,7 @@ The backend is a modular monolith with these responsibility boundaries:
 | Repositories | Async database queries and explicit relationship loading |
 | Models/database | Approved schema, referential integrity, engine/session lifecycle |
 | Integrations | NASA/source systems, object storage and provider adapters |
-| Ingestion | Parsing, unit normalization, provenance and curator review |
+| Ingestion acceptance | Backend-facing contract validation, compatibility checks and handoff with the Data team's parsing, normalization, provenance and curator review pipeline |
 | Migrations | Reviewed, versioned changes to the persistent schema |
 
 Create modules when they have real functionality. Avoid generic CRUD layers without a
@@ -268,7 +268,7 @@ completion status and executed results belong in phase-specific records.
 | --- | --- | --- |
 | 1 | Backend foundation | Configuration, FastAPI lifecycle, health/readiness, CORS, async database access, Alembic, Poetry and tests |
 | 2 | Approved ERD and migrations | All 21 entities, approved physical mapping, typed schemas, meaningful repositories and migration/relationship tests |
-| 3 | Scientific ingestion and source validation | Retain originals, deduplicate PSI identities, normalize units, validate provenance and preserve unknowns |
+| 3 | Scientific ingestion and source validation (shared handoff) | Phase 3A: Data team owns source acquisition, normalization, curation and import. Phase 3B: Backend owns agreed handoff contract, schema compatibility and safe acceptance tests. Preserve originals, identifiers, provenance and unknowns. |
 | 4 | Catalog and comparison APIs | Dashboard, explorer/detail/run/source/telemetry contracts and scientifically compatible comparisons |
 | 5 | Scenario matching and gaps | Validated inputs, reproducible run-level matching, versioned relevance and same-run coverage explanations |
 | 6 | Evidence-grounded assistant | Source/chunk retrieval, reviewed claims, citation validation, abstention and chat persistence |
@@ -279,6 +279,12 @@ Ingestion and source validation precede scientific aggregates and evidence match
 Reviewed source provenance precedes grounded answers. Validated data and model artifacts
 precede prediction. Deployment needs may be addressed alongside these stages when requested,
 without changing their scientific validation requirements.
+
+The user-approved Phase 3 ownership split is recorded in
+`docs/decisions/ADR-0001-phase3-ownership.md`; `docs/contracts/data-handoff.md` is
+the proposed acceptance contract. It does not authorize a backend rewrite of the Data
+team's importer. The AI team owns RAG and predictive-model scientific logic;
+backend owns their HTTP/persistence integration, with a separate interface agreement.
 
 ## Verification and documentation requirements
 

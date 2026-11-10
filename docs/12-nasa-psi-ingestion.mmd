@@ -1,0 +1,33 @@
+flowchart TB
+  subgraph frame["D12 — NASA PSI INGESTION + CURATION PIPELINE | Must / Should"]
+    direction TB
+    discover(["Discover NASA PSI investigation record"])
+    identify["Read external psi_id + DOI + platform"]
+    metadata["Normalize investigation metadata"]
+    check{"Run-level data available?"}
+    runs["Parse test runs + conditions + measurements"]
+    incomplete["Mark conditions unknown / pending review"]
+    documents["Store original source URLs + source assets"]
+    tag["Classify research tags [S]"]
+    chunks["Chunk + index source text for RAG [S]"]
+    review["Human review source linkage + units"]
+    catalog[("INVESTIGATION + TEST_RUN + SOURCE_DOCUMENT")]
+    status["Catalog available with transparent completeness"]
+    discover --> identify
+    identify --> metadata
+    metadata --> check
+    check -->|"Yes"| runs
+    check -->|"No"| incomplete
+    runs --> documents
+    incomplete --> documents
+    documents --> tag
+    documents --> chunks
+    documents --> review
+    tag --> catalog
+    chunks --> review
+    review --> catalog
+    catalog --> status
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style incomplete fill:#FEF3C7,stroke:#F59E0B
+  style review fill:#DCFCE7,stroke:#4ADE80

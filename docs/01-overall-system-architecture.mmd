@@ -1,0 +1,44 @@
+flowchart LR
+  subgraph frame["D01 — OVERALL SYSTEM ARCHITECTURE"]
+    direction LR
+    subgraph frontend["REACT + VITE SPA"]
+      client["Landing + Workspace [M]"]
+      research["Dashboard + Explorer + Mission [M]"]
+      overlays["Compare modal + AI dock [S]"]
+      predictionUi["Predictive panel [C]"]
+    end
+    subgraph backend["BACKEND — LOGICAL SERVICES"]
+      api["FastAPI REST + validation [M]"]
+      ingestion["PSI ingestion + curation worker [S]"]
+      predictionSvc["Validated prediction service [C]"]
+    end
+    subgraph storage["PERSISTENCE"]
+      postgres[("PostgreSQL: catalog, runs, scenarios, claims [M]")]
+      objectStore[("Source files + raw assets [M]")]
+      vectorStore[("Document chunks + vector index [S]")]
+      modelStore[("Versioned models + training runs [C]")]
+    end
+    subgraph partners["EXTERNAL SOURCES"]
+      nasa["NASA PSI repository [M]"]
+      llm["LLM provider for grounded RAG [S]"]
+    end
+    client --> api
+    research --> api
+    overlays --> api
+    predictionUi -.-> predictionSvc
+    api --> postgres
+    api --> objectStore
+    api --> vectorStore
+    api -.-> llm
+    ingestion --> postgres
+    ingestion --> objectStore
+    ingestion --> vectorStore
+    ingestion -.-> nasa
+    predictionSvc --> modelStore
+    predictionSvc --> postgres
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style frontend fill:#E0F2FE,stroke:#38BDF8
+  style backend fill:#F3E8FF,stroke:#A78BFA
+  style storage fill:#DCFCE7,stroke:#4ADE80
+  style partners fill:#FFF7ED,stroke:#FB923C

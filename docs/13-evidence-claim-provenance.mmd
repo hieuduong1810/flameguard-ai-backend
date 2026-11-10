@@ -1,0 +1,28 @@
+flowchart TB
+  subgraph frame["D13 — EVIDENCE CLAIM LIFECYCLE + MANY-TO-MANY PROVENANCE | Must / Should"]
+    direction TB
+    doc(["Ingest SOURCE_DOCUMENT"])
+    candidate["Optional selective extraction: candidate claims"]
+    validate["Scientist / curator reviews exact wording"]
+    canonical{"Equivalent reviewed claim already exists?"}
+    reuse["Reuse canonical EVIDENCE_CLAIM"]
+    newClaim["Create reviewed EVIDENCE_CLAIM"]
+    link["Create CLAIM_SOURCE association with locator + excerpt"]
+    multi["A claim may have multiple documents; a document may support multiple claims"]
+    consumer["Detail evidence / Scenario gaps / RAG citations"]
+    caution["Source supports claim in its context; not automatic proof for a new mission scenario"]
+    doc --> candidate
+    candidate --> validate
+    validate --> canonical
+    canonical -->|"Yes"| reuse
+    canonical -->|"No"| newClaim
+    reuse --> link
+    newClaim --> link
+    link --> multi
+    multi --> consumer
+    consumer --> caution
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style validate fill:#DCFCE7,stroke:#4ADE80
+  style canonical fill:#EDE9FE,stroke:#A78BFA
+  style caution fill:#FEF3C7,stroke:#F59E0B

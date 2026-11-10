@@ -1,0 +1,34 @@
+flowchart LR
+  subgraph frame["D07 — FEATURE TO DATABASE OWNERSHIP"]
+    direction LR
+    subgraph features["USER FEATURES"]
+      dashboard["Dashboard analytics [M]"]
+      catalog["Explorer + detail + compare [M/S]"]
+      mission["Scenario evidence + gaps [M]"]
+      chat["Contextual RAG [S]"]
+      predictive["Predictive Lab [C]"]
+    end
+    subgraph tables["RELATIONAL CORE"]
+      investigation[("INVESTIGATION + TAG [M/S]")]
+      runData[("TEST_RUN + CONDITION + MEASUREMENT [M]")]
+      sourceData[("SOURCE_DOCUMENT + CLAIM + CLAIM_SOURCE [M]")]
+      scenarioData[("SCENARIO + SCENARIO_MATCH [M]")]
+      chatData[("CHAT_SESSION + MESSAGE + CITATION [S]")]
+      modelData[("MODEL_VERSION + PREDICTION_RESULT [C]")]
+    end
+    dashboard --> investigation
+    dashboard --> sourceData
+    catalog --> investigation
+    catalog --> runData
+    catalog --> sourceData
+    mission --> scenarioData
+    mission --> runData
+    mission --> sourceData
+    chat --> chatData
+    chat --> sourceData
+    predictive --> modelData
+    predictive --> scenarioData
+  end
+  style frame fill:#F8FAFC,stroke:#475569,stroke-width:2px
+  style features fill:#DBEAFE,stroke:#60A5FA
+  style tables fill:#DCFCE7,stroke:#4ADE80
