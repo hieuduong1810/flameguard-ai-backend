@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "workflows": {
+    "speckit": {
+      "name": "FlameGuard gated SDD cycle",
+      "version": "1.0.2",
+      "description": "Specify, clarify when needed, plan, tasks, analyze, implement, test and converge with evidence gates",
+      "source": "local",
+      "installed_at": "2026-11-10T05:23:56.565162+00:00",
+      "updated_at": "2026-11-11T15:06:46.239642+00:00"
+    }
+  }
+}

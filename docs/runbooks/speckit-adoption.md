@@ -1,8 +1,13 @@
 # Adopt GitHub Spec Kit with Codex — existing backend repository
 
-**Status:** Prepared instructions. Spec Kit is **not installed by this patch**;
-the working repository lives on the user's Windows machine. Perform this
-after applying/reviewing the handoff patch, using a clean Git baseline.
+**Status:** Installed in this backend repository. Shared `.agents/skills/` and `.specify/`
+files belong in Git; secrets, `.env`, environments, local integration packages and
+machine-specific configuration remain ignored. Poetry still manages the backend.
+The project Constitution is `.specify/memory/constitution.md`; the preparation
+`docs/constitution-draft.md` is retained as historical input.
+
+Sections 1-4 below are recovery/setup reference, not instructions to initialize
+this existing installation again. Inspect current files and version before any update.
 
 Official sources:
 
@@ -102,7 +107,17 @@ $speckit-converge
 The user supplies feature intent to `$speckit-specify`; the other steps
 operate on the resulting spec and plan. The flow is not a terminal batch
 script. Review outputs at each gate. If converge identifies missing tasks,
-repeat implement/converge until accepted or blocked.
+repeat implement/test/converge until accepted or blocked.
+
+After implementation, run the relevant Poetry checks and record exact results before
+Converge. The local `.specify/workflows/speckit/workflow.yml` includes manual Clarify,
+Analyze, Test and Converge evidence gates. Reject a gate when required evidence is
+missing; remediation returns to the affected artifacts/tasks. Approval alone is not
+proof that a check ran.
+
+The tasks skill, tasks template and workflow are intentional project customizations. Integration
+manifest hashes retain the installed upstream fingerprints so future updates can
+detect local edits. Review and preserve these customizations when upgrading Spec Kit.
 
 ## 6. Retention and handoff
 
