@@ -59,7 +59,7 @@ the failed run were removed after verifying their exact paths were inside this b
 
 ## Preservation and scope
 
-`docs/index.html` was not edited; its observed SHA-256 is
+`docs/diagram/index.html` was not edited; its observed SHA-256 is
 `26D01D5FBF540DCDE406A2E0DC3289E7ECD4C4D4F22FAEE3E94FE133BB907994`.
 The original design was preserved and included in the Phase 1 commit. The frontend repository
 remained clean. All implementation files are in the existing backend repository. Phase 1 was

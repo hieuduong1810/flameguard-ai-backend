@@ -1,4 +1,4 @@
-"""Export the 15 original Mermaid blocks referenced by docs/index.html.
+"""Export the 15 original Mermaid blocks referenced by docs/diagram/index.html.
 
 The HTML remains the canonical approved diagram. This utility only creates
 matching .mmd download files; it never modifies the HTML or the ERD.
@@ -16,7 +16,7 @@ from html import unescape
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "docs" / "index.html"
+SOURCE = ROOT / "docs" / "diagram" / "index.html"
 PATTERN = re.compile(
     r'<header>.*?<a href="([^"/]+\.mmd)" download>.*?</header>\s*'
     r'<div class="drawing"><pre class="mermaid">(.*?)</pre>',
@@ -55,7 +55,7 @@ def main() -> int:
 
     if mismatches:
         raise SystemExit("Missing/different from canonical HTML: " + ", ".join(mismatches))
-    print("All 15 diagrams match docs/index.html; original HTML untouched.")
+    print("All 15 diagrams match docs/diagram/index.html; original HTML untouched.")
     return 0
 
 

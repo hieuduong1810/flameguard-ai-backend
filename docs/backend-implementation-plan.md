@@ -21,7 +21,7 @@ The workspace contains sibling backend and frontend repositories. Backend work b
 `flameguard-ai-backend/`; the Next.js frontend in `FlameInFreewall_Tourbillion/` is a separate
 integration client and must not be changed by backend-only tasks without authorization.
 
-The original [architecture and ERD diagrams](index.html) define logical entities and
+The original [architecture and ERD diagrams](diagram/index.html) define logical entities and
 relationships. Frontend interfaces and page consumers define UI compatibility requirements;
 they do not establish scientific validity or silently override the ERD. Approved physical
 mappings and contract decisions must be recorded explicitly. Preserve the original diagrams
@@ -298,7 +298,7 @@ The documentation responsibilities remain stable:
 
 - `README.md`: project purpose, technology, setup, configuration and common development workflow.
 - `docs/backend-implementation-plan.md`: requirements, architecture, ERD/API mapping and roadmap.
-- `docs/index.html`: original approved architecture and logical ERD reference.
+- `docs/diagram/index.html`: original approved architecture and logical ERD reference.
 - `docs/phase-*.md`: scoped implementation details, decisions/approvals, changed files,
   migration revisions, test results, limitations and handoff notes for each delivery.
 

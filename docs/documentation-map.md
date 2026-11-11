@@ -7,7 +7,7 @@ follow the route that matches the requested feature.
 | --- | --- | --- |
 | Coding agent workflow | `../AGENTS.md` | This map, project status, Spec Kit artifacts when installed |
 | Project purpose and local setup | `../README.md` | `runbooks/local-development.md` |
-| Architecture, 21-table ERD, roadmap, baseline API proposals | `backend-implementation-plan.md` | Original D01–D15 `index.html` and actual source |
+| Architecture, 21-table ERD, roadmap, baseline API proposals | `backend-implementation-plan.md` | Original D01–D15 `diagram/index.html` and actual source |
 | Approved **physical** DB choices | `phase-2-database-implementation.md` | `../app/models/`, `../alembic/versions/`, tests |
 | Implementation history | `phase-1-verification.md`, `phase-2-database-implementation.md` | `project-status.md` for current state |
 | Team responsibilities and changes to Phase 3 | `team-ownership.md` | `decisions/ADR-0001-phase3-ownership.md` |
@@ -21,7 +21,7 @@ follow the route that matches the requested feature.
 
 1. **User-approved decisions and task scope.** New decisions that materially
    change schema or API contracts must be recorded explicitly.
-2. **Approved backend ERD:** `index.html` D03–D05 defines logical relationships.
+2. **Approved backend ERD:** `diagram/index.html` D03–D05 defines logical relationships.
 3. **Approved physical schema mapping:** `phase-2-database-implementation.md`.
 4. **Stable target requirements:** `backend-implementation-plan.md`.
 5. **Live code and tests:** actual implemented behavior, not proof that all
@@ -40,7 +40,7 @@ override a new user-approved change.
 - New approved architecture/contract decision: brief ADR in `decisions/`.
 - Actual delivery: focused `phase-*.md` record and `project-status.md` update.
 - Stable README/architecture plan: modify only with approved scope change.
-- Canonical diagrams: preserve `index.html`; `.mmd` downloads should mirror it.
+- Canonical diagrams: preserve `diagram/index.html`; `.mmd` downloads should mirror it.
 
 The sibling frontend has old HTML diagrams and `docs/superpowers/` implementation
 plans. Read them when necessary for UI compatibility, but explicitly label

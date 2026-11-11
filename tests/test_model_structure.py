@@ -48,7 +48,7 @@ def test_exact_erd_columns_types_keys_and_approved_nullability(table_name, colum
 
 
 def test_foreign_keys_follow_erd_cardinality_and_have_indexes() -> None:
-    html = (ROOT / "docs/index.html").read_text(encoding="utf-8")
+    html = (ROOT / "docs/diagram/index.html").read_text(encoding="utf-8")
     diagrams = re.findall(r'<pre class="mermaid">(.*?)</pre>', html, re.S)[2:5]
     expected_pairs = set()
     for diagram in diagrams:

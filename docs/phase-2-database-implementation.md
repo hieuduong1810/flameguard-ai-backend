@@ -12,7 +12,7 @@ The user explicitly approved the physical schema proposal before implementation.
 - A separate execution of the existing read-only PostgreSQL test passed (1 passed,
   34 deselected). The currently selected local development target is `127.0.0.1:5432/flameguard`.
   Read-only inspection found only `public.alembic_version` with no recorded revisions.
-- D03/D04/D05 in `docs/index.html` provide all 21 entities, column names, logical types,
+- D03/D04/D05 in `docs/diagram/index.html` provide all 21 entities, column names, logical types,
   keys and relationships. Repeated context entities in D04/D05 are not new tables.
 - Frontend TypeScript interfaces have been reviewed read-only; see the existing
   [architecture audit](backend-implementation-plan.md) for the column inventory and API mappings.

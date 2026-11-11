@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def erd_tables() -> dict[str, dict[str, tuple[str, str]]]:
-    page = (ROOT / "docs/index.html").read_text(encoding="utf-8")
+    page = (ROOT / "docs/diagram/index.html").read_text(encoding="utf-8")
     blocks = re.findall(r'<pre class="mermaid">(.*?)</pre>', page, re.S)
     tables = {}
     for block in blocks[2:5]:

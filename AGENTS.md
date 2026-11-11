@@ -13,7 +13,7 @@ unless its owner explicitly authorizes edits. This is an existing project;
 3. Read the relevant portions of `README.md`,
    `docs/backend-implementation-plan.md`, and the latest phase record.
 4. For a database/feature task, inspect the relevant D01–D15 diagram source in
-   `docs/index.html`, the SQLAlchemy models, Alembic revisions, and existing tests.
+   `docs/diagram/index.html`, the SQLAlchemy models, Alembic revisions, and existing tests.
    Read only the diagrams needed for that task; do not load all diagrams by default.
 5. For external boundaries, read `docs/team-ownership.md` and the corresponding
    `docs/contracts/` document. Inspect the sibling frontend's actual components,
@@ -28,7 +28,7 @@ unless its owner explicitly authorizes edits. This is an existing project;
   certification. Never return an unconditional safe/unsafe verdict.
 - Existing architecture: FastAPI, Python, Poetry, SQLAlchemy 2.x async,
   asyncpg/PostgreSQL, Alembic, Pydantic v2, pytest/HTTPX, Ruff; modular monolith.
-- The **21-table approved ERD** in `docs/index.html` and approved physical mapping
+- The **21-table approved ERD** in `docs/diagram/index.html` and approved physical mapping
   in `docs/phase-2-database-implementation.md` are authoritative. Migrations
   `0001_must_have` → `0002_should_have` → `0003_could_have` exist. Do not invent
   new columns, FK relationships, enum restrictions, or alter migration history
@@ -127,13 +127,13 @@ fixtures. Follow `docs/runbooks/testing-and-release.md` before executing it.
   volumes, or delete test databases as an automatic troubleshooting step.
 - Never run write/destructive tests on the development or shared research DB.
 - Do not commit/push, deploy, buy services or touch secrets without user approval.
-- Do not change `docs/index.html` without an approved architecture revision.
+- Do not change `docs/diagram/index.html` without an approved architecture revision.
 
 ## 6. Documentation change policy
 
 - `README.md` and `docs/backend-implementation-plan.md` are **stable baselines**;
   change only for explicit approved requirements/contracts/roadmap changes.
-- `docs/index.html` is the original approved design. Standalone `.mmd` files,
+- `docs/diagram/index.html` is the original approved design. Standalone `.mmd` files,
   where provided, are faithful exports for download, not a separate authority.
 - `docs/phase-*.md` record delivery/evidence, not speculative completion.
 - `docs/contracts/` distinguish **proposed** from **agreed** contracts; no

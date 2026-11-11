@@ -14,7 +14,7 @@ and temporary environment issues belong in separate phase records under [docs/](
 
 - [Architecture and implementation plan](docs/backend-implementation-plan.md): scope,
   responsibility boundaries, approved logical entities, API mappings and delivery roadmap.
-- [Original architecture and ERD diagrams](docs/index.html): approved design reference.
+- [Original architecture and ERD diagrams](docs/diagram/index.html): approved design reference.
 - [Implementation records](docs/): phase-specific decisions, delivered changes and executed checks.
 - [Codex instructions](AGENTS.md): agent workflow and task gates.
 - [Current project status](docs/project-status.md): phase progress, dependencies and blockers.

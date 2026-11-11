@@ -53,7 +53,7 @@ phase complete based on mock UI screenshots or unexecuted tests.
 
 - Frontend demo includes scientific-looking statements, numerical intervals and
   model names. None are promoted to verified backend facts without source review.
-- `docs/index.html` is the approved ERD; a similarly named frontend HTML file
+- `docs/diagram/index.html` is the approved ERD; a similarly named frontend HTML file
   has different content/hash and is **not** the backend schema authority.
 - Existing tests parse approved nullability from the Phase 2 Markdown report.
   Preserve its path/content structure until a separately approved contract
