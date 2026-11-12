@@ -1,0 +1,261 @@
+{
+  "version": 1,
+  "collectionId": "synthetic-phase4-v1",
+  "origin": "synthetic",
+  "reviewState": "unreviewed",
+  "tables": {
+    "evidence_claim": [
+      {
+        "id": "1dc0b6db-25b6-5438-9322-ec1d4cf35f58",
+        "claim_text": "SYNTHETIC TEST ONLY; not a NASA finding",
+        "evidence_status": "TEST_ONLY",
+        "review_status": "SYNTHETIC_UNREVIEWED",
+        "limitation": "No scientific validity",
+        "created_at": "2020-01-01T00:00:00+00:00"
+      },
+      {
+        "id": "ba8746d8-90af-55cb-8d67-9adeb344008d",
+        "claim_text": "SYNTHETIC TEST ONLY; not a NASA finding",
+        "evidence_status": "TEST_ONLY",
+        "review_status": "SYNTHETIC_UNREVIEWED",
+        "limitation": null,
+        "created_at": "2020-01-01T00:00:00+00:00"
+      }
+    ],
+    "ingestion_job": [],
+    "investigation": [
+      {
+        "id": "e1a75331-3f1f-57b8-9042-405ff61dff51",
+        "psi_id": "SYNTHETIC-PHASE4-1",
+        "title": "Synthetic tied title",
+        "research_purpose": "TEST_ONLY exploration",
+        "platform": "TEST_PLATFORM"
+      },
+      {
+        "id": "afa58280-0d0c-58a3-926a-1499a1e20a96",
+        "psi_id": "SYNTHETIC-PHASE4-2",
+        "title": "Synthetic tied title",
+        "research_purpose": "TEST_ONLY exploration",
+        "platform": "TEST_PLATFORM"
+      },
+      {
+        "id": "3d0fa425-e5a4-50a9-96e2-79bb4683fa4f",
+        "psi_id": "SYNTHETIC-PHASE4-3",
+        "title": "Synthetic study 3",
+        "research_purpose": null,
+        "platform": null
+      },
+      {
+        "id": "d695b87d-7430-5b79-8acf-27eddfe0070c",
+        "psi_id": "SYNTHETIC-PHASE4-4",
+        "title": "Synthetic study 4",
+        "research_purpose": "TEST_ONLY exploration",
+        "platform": null
+      }
+    ],
+    "model_version": [],
+    "scenario": [],
+    "tag": [
+      {
+        "id": "f9411dd8-413d-5791-85a2-53d7f5877e36",
+        "slug": "synthetic-phase4-tag",
+        "label": "Synthetic classification",
+        "category": null
+      }
+    ],
+    "chat_session": [],
+    "import_issue": [],
+    "investigation_tag": [
+      {
+        "id": "ba918084-3eb0-5e4d-a972-f3f0b9520d3d",
+        "investigation_id": "e1a75331-3f1f-57b8-9042-405ff61dff51",
+        "tag_id": "f9411dd8-413d-5791-85a2-53d7f5877e36"
+      },
+      {
+        "id": "948533c3-f31d-57d4-bf33-119ba356d2c0",
+        "investigation_id": "afa58280-0d0c-58a3-926a-1499a1e20a96",
+        "tag_id": "f9411dd8-413d-5791-85a2-53d7f5877e36"
+      }
+    ],
+    "model_training_run": [],
+    "prediction_result": [],
+    "source_document": [
+      {
+        "id": "d0127a19-6b2a-5186-8dd6-8ffb213832c2",
+        "investigation_id": "e1a75331-3f1f-57b8-9042-405ff61dff51",
+        "source_url": "https://example.invalid/synthetic/0",
+        "doi": null,
+        "document_type": "TEST_ONLY",
+        "version": null,
+        "ingestion_status": "SYNTHETIC_UNREVIEWED"
+      },
+      {
+        "id": "19350546-1534-5b0c-adaf-bd6bdd84fa01",
+        "investigation_id": "e1a75331-3f1f-57b8-9042-405ff61dff51",
+        "source_url": "https://example.invalid/synthetic/1",
+        "doi": null,
+        "document_type": "TEST_ONLY",
+        "version": null,
+        "ingestion_status": "SYNTHETIC_UNREVIEWED"
+      },
+      {
+        "id": "a2c85b1f-c4cb-588a-b992-83d4cce9ebf3",
+        "investigation_id": "afa58280-0d0c-58a3-926a-1499a1e20a96",
+        "source_url": "https://example.invalid/synthetic/2",
+        "doi": null,
+        "document_type": "TEST_ONLY",
+        "version": null,
+        "ingestion_status": "SYNTHETIC_UNREVIEWED"
+      }
+    ],
+    "test_run": [
+      {
+        "id": "b8f882f6-6fde-5b18-a505-f668bdc12c42",
+        "investigation_id": "e1a75331-3f1f-57b8-9042-405ff61dff51",
+        "external_run_key": "TEST_ONLY_RUN",
+        "material_type": "TEST_MATERIAL_A",
+        "sample_geometry": null,
+        "gravity": "0g"
+      },
+      {
+        "id": "f5b4d793-3cd5-5571-ac49-8246a1daea3e",
+        "investigation_id": "e1a75331-3f1f-57b8-9042-405ff61dff51",
+        "external_run_key": null,
+        "material_type": "TEST_MATERIAL_B",
+        "sample_geometry": null,
+        "gravity": "1g"
+      },
+      {
+        "id": "f04922ad-2fbf-5afe-ba7e-bc5a01b9149f",
+        "investigation_id": "afa58280-0d0c-58a3-926a-1499a1e20a96",
+        "external_run_key": "TEST_ONLY_RUN",
+        "material_type": "TEST_MATERIAL_A",
+        "sample_geometry": null,
+        "gravity": "1g"
+      },
+      {
+        "id": "775358d0-77bb-5f6f-a425-993ffdaaf6f5",
+        "investigation_id": "3d0fa425-e5a4-50a9-96e2-79bb4683fa4f",
+        "external_run_key": null,
+        "material_type": null,
+        "sample_geometry": null,
+        "gravity": null
+      }
+    ],
+    "chat_message": [],
+    "claim_source": [
+      {
+        "id": "63371883-7b34-5688-b4f7-fd40d13e0e7f",
+        "claim_id": "1dc0b6db-25b6-5438-9322-ec1d4cf35f58",
+        "source_document_id": "d0127a19-6b2a-5186-8dd6-8ffb213832c2",
+        "test_run_id": "b8f882f6-6fde-5b18-a505-f668bdc12c42",
+        "source_locator": "TEST_ONLY locator 0",
+        "source_excerpt": "SYNTHETIC excerpt"
+      },
+      {
+        "id": "8d3ee8d5-3a05-5bad-b86a-3d4529ea23f8",
+        "claim_id": "1dc0b6db-25b6-5438-9322-ec1d4cf35f58",
+        "source_document_id": "d0127a19-6b2a-5186-8dd6-8ffb213832c2",
+        "test_run_id": null,
+        "source_locator": "TEST_ONLY locator 1",
+        "source_excerpt": null
+      },
+      {
+        "id": "433f8940-2f71-5bf0-b63c-6d5df22c1fc6",
+        "claim_id": "1dc0b6db-25b6-5438-9322-ec1d4cf35f58",
+        "source_document_id": "19350546-1534-5b0c-adaf-bd6bdd84fa01",
+        "test_run_id": "f04922ad-2fbf-5afe-ba7e-bc5a01b9149f",
+        "source_locator": "TEST_ONLY locator 2",
+        "source_excerpt": "SYNTHETIC excerpt"
+      },
+      {
+        "id": "d786824b-55ff-5458-b5ae-7df3b9f7a8e3",
+        "claim_id": "1dc0b6db-25b6-5438-9322-ec1d4cf35f58",
+        "source_document_id": "a2c85b1f-c4cb-588a-b992-83d4cce9ebf3",
+        "test_run_id": "f04922ad-2fbf-5afe-ba7e-bc5a01b9149f",
+        "source_locator": "TEST_ONLY locator 3",
+        "source_excerpt": null
+      }
+    ],
+    "document_chunk": [],
+    "measurement": [
+      {
+        "id": "df180e4b-1e90-5815-b67a-6cba24b2ce89",
+        "test_run_id": "b8f882f6-6fde-5b18-a505-f668bdc12c42",
+        "observable": "TEST_ONLY_OBSERVABLE",
+        "measured_value": "0",
+        "unit": "mm/s",
+        "raw_asset_ref": "https://example.invalid/synthetic/raw",
+        "uncertainty": null
+      },
+      {
+        "id": "99372d84-84de-51af-8f05-951972651282",
+        "test_run_id": "f5b4d793-3cd5-5571-ac49-8246a1daea3e",
+        "observable": "TEST_ONLY_OBSERVABLE",
+        "measured_value": "0.10000000000000000001",
+        "unit": "cm/s",
+        "raw_asset_ref": null,
+        "uncertainty": null
+      },
+      {
+        "id": "63b3f138-0d4a-5bfc-81e5-ea1e5a4168f4",
+        "test_run_id": "f04922ad-2fbf-5afe-ba7e-bc5a01b9149f",
+        "observable": "TEST_ONLY_OBSERVABLE",
+        "measured_value": null,
+        "unit": "mm/s",
+        "raw_asset_ref": null,
+        "uncertainty": null
+      },
+      {
+        "id": "6433b890-ec19-5344-b3d7-1c328c7aae4c",
+        "test_run_id": "775358d0-77bb-5f6f-a425-993ffdaaf6f5",
+        "observable": "TEST_ONLY_OBSERVABLE",
+        "measured_value": "4",
+        "unit": "fixture-unit",
+        "raw_asset_ref": null,
+        "uncertainty": null
+      }
+    ],
+    "scenario_match": [],
+    "test_condition": [
+      {
+        "id": "9ecacd48-1779-5eb3-ad27-1c8d24126183",
+        "test_run_id": "b8f882f6-6fde-5b18-a505-f668bdc12c42",
+        "variable": "TEST_ONLY_OXYGEN",
+        "value_numeric": "0",
+        "value_text": null,
+        "unit": "%",
+        "data_status": "TEST_ONLY"
+      },
+      {
+        "id": "9ebdc613-7594-5785-a062-f1490c3529ac",
+        "test_run_id": "f5b4d793-3cd5-5571-ac49-8246a1daea3e",
+        "variable": "TEST_ONLY_OXYGEN",
+        "value_numeric": null,
+        "value_text": "synthetic unknown",
+        "unit": "%",
+        "data_status": "TEST_ONLY"
+      },
+      {
+        "id": "cacff5bc-d16f-5365-958b-d48fdd3c4ff7",
+        "test_run_id": "f04922ad-2fbf-5afe-ba7e-bc5a01b9149f",
+        "variable": "TEST_ONLY_OXYGEN",
+        "value_numeric": null,
+        "value_text": "synthetic unknown",
+        "unit": "%",
+        "data_status": "TEST_ONLY"
+      },
+      {
+        "id": "5e57cb93-1066-592d-b177-6aebe5905f31",
+        "test_run_id": "775358d0-77bb-5f6f-a425-993ffdaaf6f5",
+        "variable": "TEST_ONLY_OXYGEN",
+        "value_numeric": null,
+        "value_text": "synthetic unknown",
+        "unit": "%",
+        "data_status": "TEST_ONLY"
+      }
+    ],
+    "match_dimension": [],
+    "message_citation": []
+  }
+}

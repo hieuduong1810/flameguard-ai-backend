@@ -6,11 +6,11 @@ from httpx import ASGITransport, AsyncClient
 from app.core.config import Settings
 
 
-async def test_documentation_and_only_phase_one_routes(client: AsyncClient) -> None:
+async def test_documentation_preserves_phase_one_routes(client: AsyncClient) -> None:
     assert (await client.get("/docs")).status_code == 200
     response = await client.get("/openapi.json")
     assert response.status_code == 200
-    assert set(response.json()["paths"]) == {"/api/v1/health", "/api/v1/ready"}
+    assert {"/api/v1/health", "/api/v1/ready"} <= set(response.json()["paths"])
     assert "503" in response.json()["paths"]["/api/v1/ready"]["get"]["responses"]
 
 

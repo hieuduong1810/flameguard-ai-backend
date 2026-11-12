@@ -5,6 +5,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models import ClaimSource, EvidenceClaim
+from app.repositories.phase4_evidence import EvidenceReadRepository
+
+__all__ = ["EvidenceRepository", "EvidenceReadRepository"]
 
 
 class EvidenceRepository:

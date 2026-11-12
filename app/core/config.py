@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     )
     db_connect_timeout_seconds: float = Field(default=3, gt=0, le=30)
     db_ready_timeout_seconds: float = Field(default=3, gt=0, le=30)
+    catalog_collection_manifest: str | None = None
 
     @field_validator("database_url")
     @classmethod

@@ -5,7 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models import Investigation, TestRun
+from app.repositories.phase4_catalog import CatalogReadRepository
 from app.schemas.catalog import InvestigationCreate, InvestigationUpdate
+
+__all__ = ["CatalogRepository", "CatalogReadRepository"]
 
 
 class CatalogRepository:

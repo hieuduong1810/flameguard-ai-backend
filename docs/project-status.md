@@ -12,7 +12,7 @@ not a substitute for a Git diff, live API check or independent database audit.
 | 2 | 21 ERD entities, typed schemas, repositories, 3 Alembic migrations | **Reported complete** in `phase-2-database-implementation.md` (228 tests passed with isolated PostgreSQL) | Backend; preserve |
 | 3A | NASA acquisition, scientific curation and import | **External handoff pending**, not implemented in the submitted backend | Data team |
 | 3B | Data contracts, compatibility checks and acceptance | **Needs agreement**, may be developed alongside API contract tests | Backend + Data |
-| 4 | Dashboard, Explorer, Detail, Comparison APIs | **Not implemented**; current API only exposes `/api/v1/health` and `/api/v1/ready` | Backend, coordinate Frontend |
+| 4 | Dashboard, Explorer, Detail, Comparison APIs | **Executable convergence fixes through T084 verified 2026-11-12**; 441 tests passed, including 185 PostgreSQL integration tests; see `phase-4-api-verification.md` | T078 Frontend acceptance blocked; Data curated/scientific gates pending; fresh Converge review required |
 | 5 | Run-level scenario matching and evidence gaps | **Not implemented** in backend | Backend + Data |
 | 6 | Grounded assistant/RAG | **Not implemented** in backend; frontend has offline demo text generation | AI + Backend + Frontend |
 | 7 | Predictive Lab | **Not implemented** in backend; frontend demo logic is not model certification | AI + Backend + Data |
@@ -62,6 +62,14 @@ phase complete based on mock UI screenshots or unexecuted tests.
   Confirm its existence and sanitized values in the live repo when needed.
 - Reported test results from Phase 1–2 were **not rerun** on the user's live
   Windows/Postgres environment by this handoff work.
+
+## Phase 4 live implementation update — 2026-11-11
+
+The archive snapshot above is historical context. The live backend now implements the scoped synthetic Phase 4 read APIs and explicit isolated seed CLI described in `phase-4-api-verification.md`. Source/claim provenance, exact observation values, separate IDs and unknown verification are retained. Runtime OpenAPI and real isolated PostgreSQL tests are recorded in `../specs/001-phase4-catalog-apis/verification.md`.
+
+The initial implementation admitted synthetic-only collections. The 2026-11-12 remediation now also admits explicitly bound empty real/unknown collections and exact owner-declared non-curated stored-field snapshots, preserving unknown origin/review and raw statuses. Synthetic membership, mixed-origin refusal and SELECT-only snapshot checks remain enforced; curated publication still awaits Data acceptance.
+
+The first user-invoked Converge found eight follow-ups. The next review added T083-T084 for canonical duplicate UUID rejection and accurate comparison label warnings. All executable tasks through T084 are complete and verified with 441 passing tests. T078 still needs actual Frontend reviewer/date/scope evidence. A fresh Converge review remains pending. No ETL, scenario matching, RAG, prediction, frontend changes or deployment is delivered. Phase 3 is not marked complete, and later phases remain untouched. Stable README/architecture baselines are preserved.
 
 ## Update rule
 

@@ -4,6 +4,7 @@ from decimal import Decimal
 import pytest
 
 from app import models as m
+from tests.integration.phase4_fixtures import phase4_client, phase4_db  # noqa: F401
 
 
 @pytest.fixture

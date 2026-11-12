@@ -1,0 +1,14 @@
+{
+  "collectionId": "synthetic-phase4-v1",
+  "origin": "synthetic",
+  "reviewState": "unreviewed",
+  "fixture": "phase4-v1.json",
+  "slugs": "slugs-v1.json",
+  "target": {
+    "host": "127.0.0.1",
+    "port": 5433,
+    "database": "REPLACE_WITH_APPROVED_DISPOSABLE_NAME",
+    "databaseOid": 0,
+    "readRole": "REPLACE_WITH_READ_ONLY_ROLE"
+  }
+}

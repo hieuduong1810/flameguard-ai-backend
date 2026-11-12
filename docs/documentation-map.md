@@ -15,6 +15,9 @@ follow the route that matches the requested feature.
 | NASA data ingest/quality | `contracts/data-handoff.md` | D12–D13, evidence/catalog models |
 | RAG, chatbot, prediction ownership | `contracts/ai-backend-interface.md` | D11/D14, chat/evidence/prediction models |
 | Running and testing locally | `runbooks/local-development.md` | `runbooks/testing-and-release.md` |
+| Phase 4 synthetic API delivery and evidence | `phase-4-api-verification.md` | `../specs/001-phase4-catalog-apis/verification.md` |
+| Phase 4 isolated demo/seed | `runbooks/phase-4-demo-validation.md` | `../data/demo/README.md` |
+| Phase 4 consumer and curated-data gates | `contracts/phase-4-frontend-handoff.md` | `contracts/phase-4-data-handoff.md` |
 | Adopting Spec Kit | `runbooks/speckit-adoption.md` | `constitution-draft.md` |
 
 ## Source-of-truth precedence

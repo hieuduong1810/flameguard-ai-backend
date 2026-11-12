@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "collectionId": "synthetic-phase4-v1",
+  "entries": [
+    {
+      "slug": "synthetic-study-1",
+      "psiId": "SYNTHETIC-PHASE4-1"
+    },
+    {
+      "slug": "synthetic-study-2",
+      "psiId": "SYNTHETIC-PHASE4-2"
+    },
+    {
+      "slug": "synthetic-study-3",
+      "psiId": "SYNTHETIC-PHASE4-3"
+    },
+    {
+      "slug": "synthetic-study-4",
+      "psiId": "SYNTHETIC-PHASE4-4"
+    }
+  ]
+}
