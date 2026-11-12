@@ -1,0 +1,250 @@
+schema_version: "1.0"
+workflow:
+  id: flameguard-phase
+  name: FlameGuard backend phase autopilot
+  version: "0.1.0"
+  author: FlameGuard AI Backend
+  description: One bounded Spec Kit cycle for project Phase 5, 6, or 7.
+  integration: codex
+
+requires:
+  speckit_version: ">=1.3.3"
+  integrations:
+    any: [codex]
+
+inputs:
+  phase:
+    type: string
+    required: true
+    enum: ["5", "6", "7"]
+    prompt: "Backend project phase (5, 6, or 7)"
+
+steps:
+  - id: preflight
+    type: shell
+    strict: true
+    run: python docs/workflows/phase_control.py preflight
+    env:
+      FLAMEGUARD_PHASE: "{{ inputs.phase }}"
+    output_format: json
+
+  - id: load-context
+    type: prompt
+    prompt: >-
+      Read AGENTS.md, .specify/memory/constitution.md, docs/documentation-map.md,
+      docs/backend-implementation-plan.md, docs/team-ownership.md, the relevant
+      docs/contracts/, docs/roadmap/phase5-7-backlog.md and
+      docs/roadmap/data-integration-pending.md. Inspect existing Phase 4 APIs,
+      tests, and the Data Team ranking implementation read-only as needed.
+      Project Phase {{ inputs.phase }} is selected; a heading inside tasks.md
+      never changes the selected project phase. Preserve all existing work and
+      do not modify the Data Team or Frontend repositories. Report any material
+      conflict or unapproved decision before making a related change.
+
+  - id: specify
+    command: speckit.specify
+    input:
+      args: >-
+        Create exactly one distinct backend feature for PROJECT PHASE
+        {{ inputs.phase }}. Set SPECIFY_FEATURE_DIRECTORY explicitly to
+        specs/phase{{ inputs.phase }}-backend. Use the approved corresponding
+        Phase {{ inputs.phase }} rows in docs/roadmap/phase5-7-backlog.md,
+        AGENTS.md and the Constitution. Preserve Phase 4 and existing contracts.
+        State external Data, AI and Frontend decisions as dependencies. No
+        fabricated scientific findings or unapproved schema/API decisions.
+
+  - id: verify-feature
+    type: shell
+    strict: true
+    run: python docs/workflows/phase_control.py verify-feature
+    env:
+      FLAMEGUARD_PHASE: "{{ inputs.phase }}"
+    output_format: json
+
+  - id: plan
+    command: speckit.plan
+    input:
+      args: >-
+        Plan only project Phase {{ inputs.phase }} in the selected feature.
+        Reuse FastAPI, Poetry, async SQLAlchemy, Alembic, Pydantic, HTTPX,
+        Ruff and Router -> Service -> Repository -> Database. Reuse the Data
+        Team ranking algorithm only behind a provider contract; use labeled
+        mock providers where Data/AI engines are unavailable. Analyze impacts
+        before any justified additive schema migration. Never edit applied
+        revisions or change another team's repository.
+
+  - id: tasks
+    command: speckit.tasks
+    input:
+      args: >-
+        Create dependency-ordered tasks only for project Phase
+        {{ inputs.phase }}. Separate executable backend work from external
+        Data, AI, Frontend and approval dependencies. Include acceptance tests,
+        OpenAPI, isolated PostgreSQL integration, mock labeling, provenance,
+        uncertainty and final handoff. A task-list phase heading is not the
+        selected project phase.
+
+  - id: analyze
+    command: speckit.analyze
+    input:
+      args: >-
+        Analyze the Phase {{ inputs.phase }} spec, plan and tasks against the
+        Constitution, AGENTS.md, architecture, contracts and phase backlog.
+        Identify inconsistent IDs, dependencies, acceptance criteria and
+        ownership. Do not silently resolve an architectural, scientific,
+        breaking API or destructive database decision.
+
+  - id: reconcile
+    type: prompt
+    prompt: >-
+      For the selected PROJECT PHASE {{ inputs.phase }}, resolve only routine,
+      non-architectural inconsistencies found by speckit.analyze in the feature
+      spec/plan/tasks. Recheck the artifacts. If an unresolved architectural,
+      scientific, breaking API, schema or cross-team approval decision remains,
+      stop with an explicit blocker; do not guess. Do not implement code yet.
+
+  - id: reanalyze
+    command: speckit.analyze
+    input:
+      args: >-
+        Reanalyze the corrected Phase {{ inputs.phase }} artifacts. Stop if
+        material contradictions or unapproved decisions remain.
+
+  - id: approve-implementation
+    type: gate
+    message: >-
+      Review the selected Phase {{ inputs.phase }} spec, plan, tasks and Analyze
+      findings. Approve implementation only for the owned, decision-complete
+      scope; leave external and unapproved work blocked. This is the required
+      Constitution implementation authorization gate.
+    options: [approve, reject]
+    on_reject: abort
+
+  - id: execution-cycle
+    type: do-while
+    condition: "{{ steps.assess.output.data.retry == true }}"
+    max_iterations: 3
+    steps:
+      - id: implement
+        command: speckit.implement
+        input:
+          args: >-
+            Complete EVERY executable unchecked task in project Phase
+            {{ inputs.phase }} in the selected feature, including all vertical
+            slices, tests and documentation. Recheck tasks.md; do not stop
+            after one slice. Leave genuinely external or unapproved tasks
+            unchecked and record each in
+            specs/phase{{ inputs.phase }}-backend/blocked-dependencies.json
+            with task_id, owner, reason and evidence. Do not implement Data
+            ETL, AI algorithms, Frontend code, deployment or Git operations.
+            Mock/synthetic outputs must be labeled. Stop before any breaking
+            API change, destructive operation, scientific validation claim or
+            unapproved schema decision.
+
+      - id: test
+        type: shell
+        strict: true
+        run: python docs/workflows/phase_control.py test
+        env:
+          FLAMEGUARD_PHASE: "{{ inputs.phase }}"
+          FLAMEGUARD_RUN_ID: "{{ context.run_id }}"
+        output_format: json
+        timeout: 4200
+
+      - id: test-repair
+        type: while
+        condition: "{{ steps.test.output.data.passed == false and steps.retest.output.data.passed != true }}"
+        max_iterations: 3
+        steps:
+          - id: fix-tests
+            command: speckit.implement
+            input:
+              args: >-
+                Phase {{ inputs.phase }} verification failed. Read the local
+                .tools/phase-workflow/{{ context.run_id }}/ logs and
+                test-results.json. Fix implementation-related failures, then
+                let the workflow rerun all checks. Do not weaken tests, skip
+                PostgreSQL tests or change team-owned repositories. Stop for
+                external or unapproved decisions.
+
+          - id: retest
+            type: shell
+            strict: true
+            run: python docs/workflows/phase_control.py test
+            env:
+              FLAMEGUARD_PHASE: "{{ inputs.phase }}"
+              FLAMEGUARD_RUN_ID: "{{ context.run_id }}"
+            output_format: json
+            timeout: 4200
+
+      - id: require-tests
+        type: shell
+        strict: true
+        run: python docs/workflows/phase_control.py test-status
+        env:
+          FLAMEGUARD_PHASE: "{{ inputs.phase }}"
+          FLAMEGUARD_RUN_ID: "{{ context.run_id }}"
+        output_format: json
+
+      - id: snapshot
+        type: shell
+        strict: true
+        run: python docs/workflows/phase_control.py snapshot
+        env:
+          FLAMEGUARD_PHASE: "{{ inputs.phase }}"
+          FLAMEGUARD_RUN_ID: "{{ context.run_id }}"
+        output_format: json
+
+      - id: converge
+        command: speckit.converge
+        input:
+          args: >-
+            Assess ALL Phase {{ inputs.phase }} specification, plan and task
+            acceptance criteria against implementation and executed test
+            evidence. Append genuine remaining implementation tasks to the
+            selected feature's tasks.md. Preserve existing task IDs. Record
+            external dependencies separately. Never call a mock provider a
+            validated scientific engine. Do not commit, push, merge or deploy.
+
+      - id: assess
+        type: shell
+        strict: true
+        run: python docs/workflows/phase_control.py assess
+        env:
+          FLAMEGUARD_PHASE: "{{ inputs.phase }}"
+          FLAMEGUARD_RUN_ID: "{{ context.run_id }}"
+        output_format: json
+
+  - id: phase-summary
+    type: prompt
+    prompt: >-
+      Write only specs/phase{{ inputs.phase }}-backend/implementation-summary.md.
+      Summarize implemented endpoints and provider contracts, changed backend
+      files, acceptance evidence, mock versus real integrations, scientific
+      limits, external dependencies, and next owner actions. Read the actual
+      task ledger and .tools/phase-workflow/{{ context.run_id }}/assessment.json
+      and test-results.json. Do not call Phase {{ inputs.phase }} converged
+      unless assessment.json status is exactly converged. Do not modify code,
+      tests, tasks or another team's repository in this reporting step.
+
+  - id: report
+    type: shell
+    strict: true
+    run: python docs/workflows/phase_control.py report
+    env:
+      FLAMEGUARD_PHASE: "{{ inputs.phase }}"
+      FLAMEGUARD_RUN_ID: "{{ context.run_id }}"
+    output_format: json
+
+  - id: unresolved
+    type: if
+    condition: "{{ steps.assess.output.data.status != 'converged' }}"
+    then:
+      - id: review-unresolved
+        type: gate
+        message: >-
+          Phase {{ inputs.phase }} is not automatically converged. Read the
+          generated engineering report and resolve its blocked tasks, retry
+          limit or uncertain convergence evidence before resuming.
+        options: [approve, reject]
+        on_reject: retry

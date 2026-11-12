@@ -5,6 +5,11 @@ installing Spec Kit in the backend repo, use `$speckit-constitution` in Codex
 to populate `.specify/memory/constitution.md` from these principles and the
 actual repository. Review the generated constitution before feature work.
 
+**Historical notice (2026-11-12):** The Constitution is already established.
+This draft records preparation context and is not the current schema policy or
+an instruction to rerun Spec Kit. See the active Constitution and ADR-0003 for
+the current 21-table baseline and schema evolution rules.
+
 ## Principle I — Research truth over impressive demos
 
 Always distinguish measured, modeled, inferred, unreviewed, illustrative and

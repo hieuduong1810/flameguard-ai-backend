@@ -58,7 +58,10 @@ answer using invented citations, or label a demo equation as a validated model.
 Codex may make routine implementation choices within approved contracts. It
 must ask the user (or report a blocking cross-team dependency) before:
 
-1. Changing the frozen ERD, relationship cardinality or migration strategy.
+1. Changing the current ERD baseline, relationship cardinality or migration
+   strategy. Evaluate actual source data and lossless adapters first; require
+   impact analysis and approval for an additive, versioned migration. Never
+   edit an applied revision or reset shared data without explicit approval.
 2. Redefining public UUID/slug/PSI mapping or removing source provenance.
 3. Claiming scientific validation, changing model applicability, or issuing
    safety guidance.

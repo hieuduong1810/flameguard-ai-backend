@@ -28,6 +28,11 @@ readiness, not a second independent ingest pipeline.
 All 21 ERD tables already exist as approved models/migrations; table existence
 does not mean scientific rows have been imported or verified. The original
 column and nullability rules remain in `../phase-2-database-implementation.md`.
+They are the current baseline, not a promise that every future NASA dataset
+fits without change. Evaluate the official hackathon dataset when received;
+preserve raw originals independently and prefer a lossless adapter. A justified
+gap needs database/API/migration/import/test/consumer impact analysis and an
+approved additive Alembic revision, never an edit to an applied revision.
 
 ## Field rules to enforce together
 
@@ -45,7 +50,7 @@ column and nullability rules remain in `../phase-2-database-implementation.md`.
    compatible investigation context; the FK alone does not check this.
 5. **Review:** agree on the allowed `ingestion_status`, `data_status`,
    `evidence_status`, `review_status`, severity and issue-resolution vocabulary.
-   These are open text fields under the frozen ERD, not a license to mix meanings.
+   These are open text fields under the current baseline, not a license to mix meanings.
 6. **Repeated imports:** agree on idempotency, atomicity, dedup, record versioning
    and partial failure handling **before** touching shared/development data.
 7. **Separation:** synthetic tests and frontend demos must never be imported

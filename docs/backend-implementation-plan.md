@@ -27,6 +27,17 @@ they do not establish scientific validity or silently override the ERD. Approved
 mappings and contract decisions must be recorded explicitly. Preserve the original diagrams
 unless the user requests a design change.
 
+The implemented 21-table ERD is the current baseline, not an immutable final
+schema. Public NASA datasets support engineering rehearsal; the official
+hackathon dataset expected on November 14, 2026 requires a new compatibility
+assessment on arrival. Prefer canonical data contracts, adapters and lossless
+transformations before a database change. Preserve existing models and applied
+migrations unless actual source data or approved requirements justify an
+additive, versioned Alembic revision. Never edit an applied revision. Review
+effects on database, APIs, migrations, imports, tests and downstream consumers
+before approval, and do not run destructive migrations or reset shared data
+without explicit human approval. Keep raw NASA data independently recoverable.
+
 | Design reference | Requirement area |
 | --- | --- |
 | D01-D02 | Overall system and modular-monolith component architecture |
@@ -255,9 +266,16 @@ to invent scientific values or add a database column. Record decisions about phy
 nullability, units, provenance, enums and constraints before applying the affected migrations.
 
 Source models and API projection models have different responsibilities. Preserve all source
-associations and original values in persistence while presenting a deliberate, versioned
+associations, identities, original values and units, quality flags, provenance
+and review status in persistence while presenting a deliberate, versioned
 contract to the frontend. Any changes to approved columns, cardinality or citation identity
 must be reviewed as requirement/schema changes, rather than hidden inside implementation work.
+Never invent fields or scientific meanings to force a new dataset into the baseline.
+
+Engineering readiness, real-data integration readiness and scientific validation
+are distinct gates. Missing scientific data is an acceptable explicit result.
+Mock providers may be used for integration tests but must never appear as
+verified scientific outputs.
 
 ## Delivery roadmap and dependencies
 

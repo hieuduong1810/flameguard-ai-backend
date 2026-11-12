@@ -86,6 +86,11 @@ Review `.specify/memory/constitution.md` for correctness and inspect Git diff.
 It must preserve the existing 21-table ERD, Poetry, multi-team ownership,
 data/provenance gates and demo chat decision.
 
+This adoption procedure is historical after the Constitution was established.
+Do not rerun it for a governance amendment. ADR-0003 now treats the 21-table
+ERD as the current baseline and permits reviewed additive schema evolution;
+applied Alembic revisions remain immutable.
+
 ## 5. Use Spec Kit for the **next bounded feature**, not old phases
 
 Suggested first slice **after Phase 3 handoff/API contracts are agreed**:

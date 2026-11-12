@@ -12,6 +12,14 @@ and frontend fixtures MUST NOT become verified scientific data. The platform MUS
 unconditional safe/unsafe verdicts or operational spacecraft fire-safety certification.
 Presentation quality is not evidence of scientific validity.
 
+Public NASA datasets MAY be used for engineering rehearsal ahead of the
+November 14, 2026 hackathon. The official dataset MUST be evaluated on arrival;
+prototype compatibility is not proof of official-data compatibility. Engineering
+readiness, real-data integration readiness and scientific validation MUST be
+reported separately. Missing scientific data is acceptable and MUST be explicit.
+Mock providers MAY support integration testing but MUST NOT masquerade as
+verified scientific outputs.
+
 ### II. Existing Architecture and Coding Standards
 
 Work MUST extend the existing FastAPI modular monolith, not recreate the project or replay
@@ -21,19 +29,29 @@ services/callers own business workflows and explicit transactions; repositories 
 and flushes, not commits. Relationships MUST use explicit async-safe loading, not accidental
 I/O. New abstractions, workers, frameworks or microservices require an approved concrete need.
 
-### III. Finalized Schema Preservation
+### III. Schema Evolution and Original Data Preservation
 
-The 21-table logical ERD in `docs/diagram/index.html` D03-D05 and approved physical mapping in
-`docs/phase-2-database-implementation.md` MUST be preserved. The migration chain
-`0001_must_have` -> `0002_should_have` -> `0003_could_have` MUST NOT be rewritten, removed,
-squashed or bypassed to solve feature/environment problems. Schema changes require an
-explicit user-approved decision and reviewed migration/rollback implications before coding.
+The 21-table logical ERD in `docs/diagram/index.html` D03-D05 and physical mapping in
+`docs/phase-2-database-implementation.md` are the current implemented baseline,
+not an immutable final schema. Existing models MUST be preserved unless actual
+source data or approved requirements justify a change. Previously applied
+Alembic revisions, including `0001_must_have` -> `0002_should_have` ->
+`0003_could_have`, MUST NOT be edited, removed, squashed or bypassed.
+Prefer adapters, canonical data contracts and lossless transformations before
+changing persistence. A necessary change MAY use an additive, versioned
+Alembic revision after an explicit user-approved decision and impact analysis
+for database, APIs, migrations, imports, tests and downstream consumers.
+Review migration and rollback implications before coding. Destructive
+migrations and shared-database resets require explicit human approval.
 
 UUIDs, external `psi_id` and public/frontend slugs MUST remain distinct. Claim-document
 provenance MUST remain many-to-many through `claim_source`; investigation-tag classification
 MUST remain many-to-many through `investigation_tag`. Preserve the three chat tables.
-Frontend fields do not authorize new columns, enum restrictions, redundant FKs, credential
-fields or replacement numeric gravity/airflow columns in the finalized schema.
+Frontend fields alone do not authorize new columns, enum restrictions, redundant
+FKs, credential fields or replacement numeric gravity/airflow columns. Agents
+MUST NOT invent fields or scientific meanings to force incoming data into the
+baseline. Preserve source identity, original values and units, quality flags,
+provenance, review status and independent recoverability of the raw NASA dataset.
 
 ### IV. Explicit Team Ownership
 
@@ -206,7 +224,8 @@ plan-template research/design phases are feature-local, not a replay of project 
 
 ### Constitution Check and Completion Checklist
 
-Plans and consistency reviews MUST check: research integrity; frozen schema/history;
+Plans and consistency reviews MUST check: research integrity; justified schema
+evolution and immutable applied revisions; lossless source/contract mapping;
 ownership; agreed contract/identity/unit/null semantics; async layers/transactions; Poetry;
 safe test targets; secret/auth/CORS constraints; documentation and scope authorization.
 Violations require reported remediation or an explicit approved governance/requirement
@@ -234,8 +253,15 @@ This is the first populated Constitution, version 1.0.0, established from the us
 previous ratified version. This document governs Spec Kit work within existing project
 authority; it MUST NOT silently override AGENTS.md, user scope or approved schema/ownership.
 
+The owner-directed 2026-11-12 amendment changes Principle III from finalized
+schema preservation to reviewed schema evolution and expands Principle I with
+hackathon prototype evidence rules. Version 2.0.0 marks this material principle
+redefinition. ADR-0003 records the rationale, impact gates and limits. The
+amendment changes governance only; it authorizes no feature implementation,
+data import, migration execution or scientific validation claim.
+
 Use `docs/documentation-map.md` precedence: explicit user-approved decisions/scope;
-approved logical ERD; approved physical mapping; stable requirements; live code/tests as
+current logical ERD baseline; current physical mapping; stable requirements; live code/tests as
 behavior evidence; frontend mock types/design as consumer reference only. AGENTS.md supplies
 repository operating instructions. Draft contracts are not approved decisions. When sources
 conflict, report exact statements, owner, impact and needed decision; stop affected work
@@ -268,6 +294,9 @@ does not itself authorize code, schema, data, template, commit, deployment or pa
   streaming/demo-session contracts remain proposed/open in their source documents. Adoption
   MUST NOT invent values or team sign-off. Owner/user agreement and acceptance criteria gate
   their dependent implementation, not establishment of this governance baseline.
+- The original ERD and Phase 2 mapping remain historical and implemented baselines.
+  ADR-0003 governs future schema evolution; it does not retroactively revise Phase 2
+  evidence or authorize a Phase 3B import, migration or official-dataset claim.
 
 The initial baseline was prepared for commit on 2026-11-11 with user-authorized diagram
 relocation and template/workflow alignment; see
@@ -293,5 +322,6 @@ These changes preserve scientific, schema and ownership requirements.
 - [Local development](../../docs/runbooks/local-development.md),
   [testing/release](../../docs/runbooks/testing-and-release.md),
   [Spec Kit adoption context](../../docs/runbooks/speckit-adoption.md).
+- [Schema evolution and hackathon prototype policy](../../docs/decisions/ADR-0003-schema-evolution-and-hackathon-prototype.md).
 
-**Version**: 1.0.0 | **Ratified**: 2026-11-10 | **Last Amended**: 2026-11-11
+**Version**: 2.0.0 | **Ratified**: 2026-11-10 | **Last Amended**: 2026-11-12

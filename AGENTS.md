@@ -28,16 +28,28 @@ unless its owner explicitly authorizes edits. This is an existing project;
   certification. Never return an unconditional safe/unsafe verdict.
 - Existing architecture: FastAPI, Python, Poetry, SQLAlchemy 2.x async,
   asyncpg/PostgreSQL, Alembic, Pydantic v2, pytest/HTTPX, Ruff; modular monolith.
-- The **21-table approved ERD** in `docs/diagram/index.html` and approved physical mapping
-  in `docs/phase-2-database-implementation.md` are authoritative. Migrations
-  `0001_must_have` → `0002_should_have` → `0003_could_have` exist. Do not invent
-  new columns, FK relationships, enum restrictions, or alter migration history
-  to satisfy an unapproved frontend display field.
+- The **21-table ERD** in `docs/diagram/index.html` and physical mapping in
+  `docs/phase-2-database-implementation.md` are the current implemented baseline,
+  not an immutable final schema. Migrations `0001_must_have` →
+  `0002_should_have` → `0003_could_have` exist and MUST NOT be edited after
+  application. Preserve current models and migrations unless actual source data
+  or approved requirements justify a reviewed change. Prefer adapters, canonical
+  data contracts and lossless transformations. When necessary, use an additive,
+  versioned Alembic revision after impact analysis covering database, APIs,
+  migrations, imports, tests and downstream consumers. Do not invent columns,
+  constraints or scientific meanings to satisfy an unapproved display field or
+  force an incoming dataset into the baseline.
 - Internal UUID, external `psi_id` and frontend/public slug are **different IDs**.
   Resolve the mapping explicitly before implementing a detail endpoint.
 - Source links, DOI, source locators, original measurements/units/uncertainties,
-  unknown/null values, and claim↔source many-to-many relationships must survive
-  API projections. A missing measurement is not zero.
+  quality flags, review status, unknown/null values, and claim↔source many-to-many
+  relationships must survive storage and API projections. Keep the raw NASA
+  dataset independently recoverable. A missing measurement is not zero.
+- Public NASA datasets are engineering rehearsal inputs for the November 14, 2026
+  hackathon. Evaluate the official dataset when it arrives. Engineering readiness,
+  scientific validation and real-data integration readiness are separate claims.
+  Represent missing scientific data explicitly. Mock providers may support
+  integration tests but must never appear as verified scientific outputs.
 - Relevance scores are not fire risk probabilities. Combined scenario coverage
   must be supported by compatible values **within the same test run**, not by
   separate catalog-wide parameter ranges.
@@ -122,9 +134,11 @@ only proven when `TEST_DATABASE_URL` points to a separately approved,
 disposable **test-named** PostgreSQL target with the role required by existing
 fixtures. Follow `docs/runbooks/testing-and-release.md` before executing it.
 
-- Inspect migrations and the selected database URL before an upgrade.
+- Inspect migrations, impact analysis and the selected database URL before an upgrade.
 - Do not run `alembic upgrade`, downgrade, stamp, drop/truncate, remove Docker
   volumes, or delete test databases as an automatic troubleshooting step.
+- Never run a destructive migration or reset a shared database without explicit
+  human approval. Never edit a previously applied Alembic revision.
 - Never run write/destructive tests on the development or shared research DB.
 - Do not commit/push, deploy, buy services or touch secrets without user approval.
 - Do not change `docs/diagram/index.html` without an approved architecture revision.

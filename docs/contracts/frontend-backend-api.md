@@ -91,7 +91,7 @@ with the returned canonical UUID.
 ## Scenario input and evidence matching
 
 The TypeScript form uses numeric `gravity` (g) and `airflowVelocity` (cm/s),
-while the frozen SCENARIO table uses string `gravity` and `ventilation`.
+while the current SCENARIO table uses string `gravity` and `ventilation`.
 Agree on serialization with units before persisting. Oxygen is percentage;
 pressure is absolute psi (psia), not gauge pressure. Reject non-finite values.
 
