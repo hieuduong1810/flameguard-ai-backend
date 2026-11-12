@@ -1,4 +1,5 @@
 import asyncio
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -11,7 +12,7 @@ from app.services.demo_manifest import fixture_rows, snapshot_rows
 from app.services.errors import Phase4Error
 
 
-async def admit_collection(session, settings):
+async def admit_collection(session, settings, *, capture_content=False):
     try:
         if not settings.catalog_collection_manifest:
             raise ValueError
@@ -60,7 +61,20 @@ async def admit_collection(session, settings):
                 raise ValueError
         if manifest["collectionId"] != config["collectionId"]:
             raise ValueError
-        await inspect_fixture(session, manifest)
+        if capture_content:
+            # Bind exact database and manifest originals, including Numeric scale.
+            # Phase 4 keeps its existing admission and Decimal equivalence semantics.
+            content = hashlib.sha256()
+            await inspect_fixture(session, manifest, content_hash=content)
+            config["phase5ContentHash"] = content.hexdigest()
+            config["phase5DatasetVersion"] = (
+                f"TEST_ONLY_fixture-v{manifest['version']}"
+                if config["origin"] == "synthetic" and isinstance(manifest.get("version"), int)
+                else None
+            )
+            config["phase5IdentityVersion"] = None
+        else:
+            await inspect_fixture(session, manifest)
         if config["origin"] != "synthetic" and not config.get("slugs"):
             return config, {}
         slugs = json.loads(
@@ -75,6 +89,9 @@ async def admit_collection(session, settings):
             or any(not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", e["slug"]) for e in entries)
         ):
             raise ValueError
+        if capture_content and config["origin"] == "synthetic":
+            if isinstance(slugs.get("version"), int):
+                config["phase5IdentityVersion"] = f"TEST_ONLY_slugs-v{slugs['version']}"
         return config, {e["psiId"]: e["slug"] for e in entries}
     except DBAPIError:
         raise Phase4Error("DATA_UNAVAILABLE") from None

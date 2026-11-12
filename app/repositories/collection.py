@@ -1,3 +1,5 @@
+import json
+
 from sqlalchemy import select, text
 
 from app.models import Base
@@ -29,7 +31,7 @@ async def database_identity(session):
     )
 
 
-async def inspect_fixture(session, manifest, *, allow_subset=False):
+async def inspect_fixture(session, manifest, *, allow_subset=False, content_hash=None):
     """Exact read-side membership validation, including unused approved tables."""
     # Validate the whole manifest before SQL or any UUID-keyed lookup can lose rows.
     indexed = {name: unique_rows_by_id(rows) for name, rows in manifest["tables"].items()}
@@ -38,15 +40,21 @@ async def inspect_fixture(session, manifest, *, allow_subset=False):
         expected = indexed[table.name]
         # Server-side cursor: DB content is never buffered as a whole table.
         # Remove matched identities, keeping only the already-loaded manifest.
-        stream = await session.stream(
-            select(table).execution_options(yield_per=ADMISSION_BATCH_SIZE)
-        )
+        statement = select(table)
+        if content_hash is not None:
+            statement = statement.order_by(table.c.id)
+        stream = await session.stream(statement.execution_options(yield_per=ADMISSION_BATCH_SIZE))
         try:
             async for batch in stream.mappings().partitions(ADMISSION_BATCH_SIZE):
                 for row in batch:
                     exp = expected.pop(row["id"], None)
                     if exp is None or any(canonical(row[k]) != canonical(exp[k]) for k in exp):
                         raise Phase4Error("DATASET_CONFLICT")
+                    if content_hash is not None:
+                        original = json.dumps(
+                            [table.name, dict(row), exp], sort_keys=True, default=str
+                        )
+                        content_hash.update(original.encode("utf-8"))
         finally:
             await stream.close()
         missing[table.name] = list(expected.values())

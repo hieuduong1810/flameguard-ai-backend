@@ -5,6 +5,7 @@ import pytest
 
 from app import models as m
 from tests.integration.phase4_fixtures import phase4_client, phase4_db  # noqa: F401
+from tests.integration.phase5_fixtures import phase5_api, phase5_db  # noqa: F401
 
 
 @pytest.fixture

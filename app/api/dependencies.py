@@ -4,12 +4,15 @@ from fastapi import Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db_session
+from app.integrations.scenario_evidence.config import ScenarioProviders
+from app.integrations.scenario_evidence.mocks import fixture_providers
 from app.services.catalog import CatalogService
 from app.services.collection import admit_collection, collection_context
 from app.services.comparison import ComparisonService
 from app.services.dashboard import DashboardService
 from app.services.errors import Phase4Error
 from app.services.evidence import EvidenceService
+from app.services.scenarios import ScenarioService
 from app.services.unit_of_work import read_unit_of_work
 
 
@@ -39,3 +42,9 @@ def get_dashboard(value: Annotated[tuple, Depends(get_read_context)]):
 
 def get_comparison(value: Annotated[tuple, Depends(get_read_context)]):
     return ComparisonService(*value)
+
+
+def get_scenarios(request: Request) -> ScenarioService:
+    settings = request.app.state.settings
+    providers = fixture_providers() if settings.scenario_test_providers else ScenarioProviders()
+    return ScenarioService(request.app.state.database.session_factory, settings, providers)

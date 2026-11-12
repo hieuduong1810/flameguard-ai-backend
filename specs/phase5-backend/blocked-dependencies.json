@@ -1,0 +1,9 @@
+[
+  {"task_id":"T056","owner":"Data and Backend","reason":"Real dataset and identity acceptance pending","evidence":"tasks.md T056 and handoff.md"},
+  {"task_id":"T057","owner":"Data and scientific reviewers","reason":"Real variable mappings and same-run scientific methodology pending","evidence":"tasks.md T057 and handoff.md"},
+  {"task_id":"T058","owner":"Data","reason":"Real ranking delivery and score semantics acceptance pending","evidence":"tasks.md T058 and handoff.md"},
+  {"task_id":"T059","owner":"Data","reason":"Reviewed classifications and source corpus pending","evidence":"tasks.md T059 and handoff.md"},
+  {"task_id":"T060","owner":"Frontend","reason":"Consumer contract acceptance and integration evidence pending","evidence":"tasks.md T060 and handoff.md"},
+  {"task_id":"T061","owner":"Data and Frontend","reason":"Optional comparison enrichment deferred pending scientific and consumer policy","evidence":"tasks.md T061 and handoff.md"},
+  {"task_id":"T062","owner":"Backend project owner","reason":"Runtime storage writer, access and retention decision pending","evidence":"tasks.md T062 and app/services/scenario_persistence.py"}
+]

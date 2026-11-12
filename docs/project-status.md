@@ -13,7 +13,7 @@ not a substitute for a Git diff, live API check or independent database audit.
 | 3A | NASA acquisition, scientific curation and import | **External handoff pending**, not implemented in the submitted backend | Data team |
 | 3B | Data contracts, compatibility checks and acceptance | **Needs agreement**, may be developed alongside API contract tests | Backend + Data |
 | 4 | Dashboard, Explorer, Detail, Comparison APIs | **Executable convergence fixes through T084 verified 2026-11-12**; 441 tests passed, including 185 PostgreSQL integration tests; see `phase-4-api-verification.md` | T078 Frontend acceptance blocked; Data curated/scientific gates pending; fresh Converge review required |
-| 5 | Run-level scenario matching and evidence gaps | **Not implemented** in backend | Backend + Data |
+| 5 | Run-level scenario matching, rankings and pillar evidence | **Backend engineering verified 2026-11-12** for P5-01–P5-06. 551 tests passed, including 197 isolated PostgreSQL integration tests. See `phase-5-scenario-evidence-verification.md`. | Data/scientific and Frontend acceptance pending. Runtime writer binding pending. P5-07 deferred. |
 | 6 | Grounded assistant/RAG | **Not implemented** in backend; frontend has offline demo text generation | AI + Backend + Frontend |
 | 7 | Predictive Lab | **Not implemented** in backend; frontend demo logic is not model certification | AI + Backend + Data |
 | 8 | Deployment and FE integration | **Not implemented** for backend in the provided snapshot | Backend + Frontend |

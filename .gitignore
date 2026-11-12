@@ -10,3 +10,5 @@ __pycache__/
 htmlcov/
 .tools/
 *.log
+# Accidental root archive, potentially containing local private files.
+/-C

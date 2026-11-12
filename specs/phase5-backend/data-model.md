@@ -1,0 +1,9 @@
+# Phase 5 data model and storage impact
+
+The public evaluation projects detached records from the admitted existing PostgreSQL snapshot. Run UUID, investigation UUID, PSI identifier, slug and scoped external run key remain separate. Conditions and optional observations retain original units and decimal scale. Missing source/uncertainty stays null. The claim-source association is the pagination identity. One document can occur repeatedly and the associated run may be absent or belong to another investigation.
+
+## Schema and persistence impact gate
+
+The trusted storage service accepts only a complete representable subset: name, environment label, material key, gravity in g, ambient oxygen percent, absolute pressure in psia, and airflow in cm/s. Description, preset key, material label or missing required fields cannot enter this serialization. Existing Numeric columns carry oxygen and pressure exactly under the named unit/meaning contract. Existing Text gravity and ventilation columns carry versioned JSON with unit and original lexical value. Serialization rejects representations PostgreSQL would alter or that could be confused with legacy text. Reading rejects legacy/unknown serialization versions, with legacy data left readable by its existing paths. A transaction owns insert and flush and returns an existing-table UUID.
+
+The persistence service requires an explicit trusted writable session. Exact Phase 4 collection admission verifies every table against its declared snapshot and uses a SELECT-only role. Wiring a runtime writer into the same read target would invalidate that admission. A compatible writer target/lifecycle and unsupported schema changes are tracked by T062. No ranking, fixture coverage or classified evidence is stored. No new model, column, dependency or migration is needed for the compatible subset.

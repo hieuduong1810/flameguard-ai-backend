@@ -5,6 +5,9 @@
 # switch features, so it is per-checkout state rather than something to share.
 feature.json
 
+# Machine-local workflow execution checkpoints and captured output.
+workflows/runs/
+
 # Per-machine extension config overrides.
 extensions/*/local-config.yml
 
