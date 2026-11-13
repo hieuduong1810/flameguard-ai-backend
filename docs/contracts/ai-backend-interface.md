@@ -63,6 +63,12 @@ do not add `user_id` or `guest_credential` columns on assumption.
 
 ## Prediction readiness and safety gate
 
+The owner-approved Phase 7 backend contract uses stateless execution and a
+transport-neutral provider registration boundary. Its versioned registry
+declaration, configuration, error handling and outstanding AI/Data acceptance
+requirements are in the [prediction handoff](phase-7-prediction-handoff.md).
+Current admitted unreviewed collections keep public scientific readiness closed.
+
 Before returning numeric prediction results, require:
 
 - Verified, versioned model artifact owned by AI team.

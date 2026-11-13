@@ -47,7 +47,11 @@ endpoint exists until it appears in the running OpenAPI and tests pass.
 | Comparison | `POST /api/v1/compare` | 2–3 distinct UUIDs, same-unit/context comparison |
 | Scenario analysis | `POST /api/v1/scenarios/analyze` | Reviewed run-level matching algorithm, optional persistence |
 | Grounded assistant | `POST /api/v1/ask` | **AI team contract**, DB chat persistence and source citations |
-| Predictive readiness | TBD | **AI team model and data validation** |
+| Predictive readiness | `GET /api/v1/prediction/readiness` | Phase 7 owner-approved backend contract. AI/Data validation and Frontend acceptance pending |
+| Predictive execution | `POST /api/v1/predictions` | Phase 7 owner-approved stateless contract. Scientific execution remains gated |
+
+Phase 7 request/response types, provider gates and consumer acceptance details
+are recorded in the [prediction handoff](phase-7-prediction-handoff.md).
 
 These are **target** endpoints, not a request to implement them all at once.
 The Phase 4 vertical slice order is catalog → detail/runs/sources/claims →

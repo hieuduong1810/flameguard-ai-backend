@@ -19,6 +19,7 @@ follow the route that matches the requested feature.
 | Phase 5 API delivery and engineering evidence | `phase-5-scenario-evidence-verification.md` | `../specs/phase5-backend/engineering-report.md`, `../specs/phase5-backend/verification.md` |
 | Phase 5 handoff and Phase 6 persistence foundation | `../specs/phase5-backend/handoff.md` | T056–T060/T062 blocked, T061 deferred; Phase 4 T078 remains open |
 | Phase 6 chat, Advisor and runtime persistence | `../specs/phase6-rag-advisor/handoff.md` | `decisions/ADR-0004-runtime-chat-boundary.md`, Phase 6 contracts and verification |
+| Phase 7 stateless prediction APIs | `../specs/phase7-predictive-lab/engineering-report.md` | `contracts/phase-7-prediction-handoff.md`, Phase 7 verification and external acceptance gates |
 | Reusable phase workflow | `workflows/README.md` | `workflows/flameguard-phase.yml`; execution checkpoints are machine-local |
 | Phase 4 isolated demo/seed | `runbooks/phase-4-demo-validation.md` | `../data/demo/README.md` |
 | Phase 4 consumer and curated-data gates | `contracts/phase-4-frontend-handoff.md` | `contracts/phase-4-data-handoff.md` |

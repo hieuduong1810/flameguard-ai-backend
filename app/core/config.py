@@ -36,6 +36,8 @@ class Settings(BaseSettings):
     runtime_database_url: SecretStr | None = None
     chat_provider: Literal["unavailable", "mock"] = "unavailable"
     chat_timeout_seconds: float = Field(default=10, gt=0, le=30)
+    prediction_provider: Literal["unavailable", "mock"] = "unavailable"
+    prediction_timeout_seconds: float = Field(default=10, gt=0, le=30)
 
     @field_validator("database_url")
     @classmethod
