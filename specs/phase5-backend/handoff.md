@@ -20,6 +20,12 @@ Scenario storage supports a complete representable subset in the existing table 
 
 ## T062 foundation for Phase 6
 
+Update 2026-11-13. The owner accepted the chat-specific runtime boundary in
+[ADR-0004](../../docs/decisions/ADR-0004-runtime-chat-boundary.md).
+Phase 6 implements that boundary for the existing three chat tables. Phase 5
+scenario-history writer activation and other mutable groups remain pending
+their own lifecycle scope under T062.
+
 Phase 6 planning must separate immutable scientific collection admission from
 mutable runtime application persistence. Scenario history, chat sessions and
 messages need a writer and lifecycle that can evolve independently of admitted

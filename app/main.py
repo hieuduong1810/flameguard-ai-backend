@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 from app.api.v1.router import api_router
 from app.core.config import Settings, get_settings
 from app.core.database import Database
+from app.core.runtime import RuntimeDatabase
 
 logger = logging.getLogger(__name__)
 
@@ -23,10 +24,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             format="%(asctime)s %(levelname)s %(name)s %(message)s",
         )
         application.state.database = Database(settings)
+        application.state.runtime_database = (
+            RuntimeDatabase(settings) if settings.runtime_database_url else None
+        )
         logger.info("Backend started (%s)", settings.app_env)
         try:
             yield
         finally:
+            if application.state.runtime_database is not None:
+                await application.state.runtime_database.close()
             await application.state.database.close()
             logger.info("Backend stopped")
 

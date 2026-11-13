@@ -7,7 +7,7 @@ from pathlib import Path
 from sqlalchemy.exc import DBAPIError
 
 from app.models import Base
-from app.repositories.collection import database_identity, inspect_fixture
+from app.repositories.collection import RUNTIME_TABLES, database_identity, inspect_fixture
 from app.services.demo_manifest import fixture_rows, snapshot_rows
 from app.services.errors import Phase4Error
 
@@ -18,6 +18,15 @@ async def admit_collection(session, settings, *, capture_content=False):
             raise ValueError
         path = Path(settings.catalog_collection_manifest)
         config = json.loads(await asyncio.to_thread(path.read_text, "utf-8"))
+        runtime_tables = frozenset()
+        if "admissionVersion" in config:
+            if config["admissionVersion"] != 2 or config.get("runtimeTables") != sorted(
+                RUNTIME_TABLES
+            ):
+                raise ValueError
+            runtime_tables = RUNTIME_TABLES
+        elif "runtimeTables" in config:
+            raise ValueError
         from sqlalchemy.engine import make_url
 
         url = make_url(settings.database_url.get_secret_value())
@@ -65,7 +74,11 @@ async def admit_collection(session, settings, *, capture_content=False):
             # Bind exact database and manifest originals, including Numeric scale.
             # Phase 4 keeps its existing admission and Decimal equivalence semantics.
             content = hashlib.sha256()
-            await inspect_fixture(session, manifest, content_hash=content)
+            if runtime_tables:
+                content.update(b"admission-v2:chat_message,chat_session,message_citation")
+            await inspect_fixture(
+                session, manifest, content_hash=content, runtime_tables=runtime_tables
+            )
             config["phase5ContentHash"] = content.hexdigest()
             config["phase5DatasetVersion"] = (
                 f"TEST_ONLY_fixture-v{manifest['version']}"
@@ -74,7 +87,7 @@ async def admit_collection(session, settings, *, capture_content=False):
             )
             config["phase5IdentityVersion"] = None
         else:
-            await inspect_fixture(session, manifest)
+            await inspect_fixture(session, manifest, runtime_tables=runtime_tables)
         if config["origin"] != "synthetic" and not config.get("slugs"):
             return config, {}
         slugs = json.loads(

@@ -33,6 +33,9 @@ class Settings(BaseSettings):
     db_ready_timeout_seconds: float = Field(default=3, gt=0, le=30)
     catalog_collection_manifest: str | None = None
     scenario_test_providers: bool = False
+    runtime_database_url: SecretStr | None = None
+    chat_provider: Literal["unavailable", "mock"] = "unavailable"
+    chat_timeout_seconds: float = Field(default=10, gt=0, le=30)
 
     @field_validator("database_url")
     @classmethod

@@ -1,0 +1,4044 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "FlameGuard AI Backend",
+    "description": "Research demonstration backend. Not operational spacecraft fire safety advice.",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/chat/sessions": {
+      "post": {
+        "tags": [
+          "chat",
+          "advisor"
+        ],
+        "summary": "Create Session",
+        "operationId": "create_session_api_v1_chat_sessions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionOutput"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Session or investigation unavailable"
+          },
+          "409": {
+            "description": "Scientific evidence changed"
+          },
+          "502": {
+            "description": "Invalid provider response or citation"
+          },
+          "503": {
+            "description": "Runtime storage or scientific collection unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/sessions/{identity}": {
+      "get": {
+        "tags": [
+          "chat",
+          "advisor"
+        ],
+        "summary": "Get Session",
+        "operationId": "get_session_api_v1_chat_sessions__identity__get",
+        "parameters": [
+          {
+            "name": "identity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Identity"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionOutput"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Session or investigation unavailable"
+          },
+          "409": {
+            "description": "Scientific evidence changed"
+          },
+          "502": {
+            "description": "Invalid provider response or citation"
+          },
+          "503": {
+            "description": "Runtime storage or scientific collection unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/chat/sessions/{identity}/messages": {
+      "get": {
+        "tags": [
+          "chat",
+          "advisor"
+        ],
+        "summary": "History",
+        "operationId": "history_api_v1_chat_sessions__identity__messages_get",
+        "parameters": [
+          {
+            "name": "identity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Identity"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessagePage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Session or investigation unavailable"
+          },
+          "409": {
+            "description": "Scientific evidence changed"
+          },
+          "502": {
+            "description": "Invalid provider response or citation"
+          },
+          "503": {
+            "description": "Runtime storage or scientific collection unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "chat",
+          "advisor"
+        ],
+        "summary": "Send",
+        "operationId": "send_api_v1_chat_sessions__identity__messages_post",
+        "parameters": [
+          {
+            "name": "identity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Identity"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Question"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Exchange"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Session or investigation unavailable"
+          },
+          "409": {
+            "description": "Scientific evidence changed"
+          },
+          "502": {
+            "description": "Invalid provider response or citation"
+          },
+          "503": {
+            "description": "Runtime storage or scientific collection unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/advisor/assessments": {
+      "post": {
+        "tags": [
+          "chat",
+          "advisor"
+        ],
+        "summary": "Advise",
+        "operationId": "advise_api_v1_advisor_assessments_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvaluationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdvisorOutput"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Session or investigation unavailable"
+          },
+          "409": {
+            "description": "Scientific evidence changed"
+          },
+          "502": {
+            "description": "Invalid provider response or citation"
+          },
+          "503": {
+            "description": "Runtime storage or scientific collection unavailable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AdvisorOutput": {
+        "properties": {
+          "pillars": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Answer"
+            },
+            "type": "object",
+            "title": "Pillars"
+          },
+          "gaps": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Gaps"
+          },
+          "context": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pillars",
+          "gaps",
+          "context"
+        ],
+        "title": "AdvisorOutput"
+      },
+      "Airflow": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,32})?$",
+            "title": "Value"
+          },
+          "unit": {
+            "type": "string",
+            "const": "cm/s",
+            "title": "Unit"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "unit"
+        ],
+        "title": "Airflow"
+      },
+      "Answer": {
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "answered",
+              "abstained",
+              "unavailable",
+              "timeout"
+            ],
+            "title": "State"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "synthetic",
+              "unknown",
+              "real"
+            ],
+            "title": "Origin",
+            "default": "unknown"
+          },
+          "review_status": {
+            "type": "string",
+            "enum": [
+              "unreviewed",
+              "unknown"
+            ],
+            "title": "Review Status",
+            "default": "unknown"
+          },
+          "provider_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Version"
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Version"
+          },
+          "corpus_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Corpus Version"
+          },
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/Citation"
+            },
+            "type": "array",
+            "maxItems": 50,
+            "title": "Citations",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "state",
+          "text"
+        ],
+        "title": "Answer"
+      },
+      "Bindings": {
+        "properties": {
+          "scenarioDigest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Scenariodigest"
+          },
+          "collectionFingerprint": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Collectionfingerprint"
+          },
+          "collectionId": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Collectionid"
+          },
+          "datasetVersion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Datasetversion"
+          },
+          "identityVersion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Identityversion"
+          },
+          "scenarioMappingVersion": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Scenariomappingversion"
+          },
+          "mappingVersion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mappingversion"
+          },
+          "ruleVersion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ruleversion"
+          },
+          "classificationVersion": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Classificationversion"
+          },
+          "pillar": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "prevention",
+                  "detection",
+                  "suppression"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pillar"
+          },
+          "rankingFingerprint": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rankingfingerprint"
+          },
+          "classificationFingerprint": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Classificationfingerprint"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "scenarioDigest",
+          "collectionFingerprint",
+          "collectionId",
+          "datasetVersion",
+          "identityVersion",
+          "scenarioMappingVersion",
+          "mappingVersion",
+          "ruleVersion",
+          "classificationVersion",
+          "pillar"
+        ],
+        "title": "Bindings"
+      },
+      "Capabilities": {
+        "properties": {
+          "supportedFilters": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Supportedfilters"
+          },
+          "supportedSorts": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Supportedsorts"
+          },
+          "unsupportedFilters": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unsupportedfilters"
+          },
+          "unsupportedSorts": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unsupportedsorts"
+          },
+          "unavailableDisplayFields": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unavailabledisplayfields"
+          },
+          "maxPageSize": {
+            "type": "integer",
+            "const": 100,
+            "title": "Maxpagesize"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "supportedFilters",
+          "supportedSorts",
+          "unsupportedFilters",
+          "unsupportedSorts",
+          "unavailableDisplayFields",
+          "maxPageSize",
+          "context"
+        ],
+        "title": "Capabilities"
+      },
+      "Citation": {
+        "properties": {
+          "source_document_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Document Id"
+          },
+          "source_locator": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Source Locator"
+          },
+          "source_excerpt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Excerpt"
+          },
+          "test_run_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Test Run Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "source_document_id",
+          "source_locator"
+        ],
+        "title": "Citation"
+      },
+      "Claim": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "claimText": {
+            "type": "string",
+            "title": "Claimtext"
+          },
+          "evidenceStatus": {
+            "type": "string",
+            "title": "Evidencestatus"
+          },
+          "reviewStatus": {
+            "type": "string",
+            "title": "Reviewstatus"
+          },
+          "limitation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limitation"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Createdat"
+          },
+          "sources": {
+            "$ref": "#/components/schemas/ClaimSourcePage"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "claimText",
+          "evidenceStatus",
+          "reviewStatus",
+          "limitation",
+          "createdAt",
+          "sources",
+          "context"
+        ],
+        "title": "Claim"
+      },
+      "ClaimPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Claim"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Offset"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Limit"
+          },
+          "next": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit",
+          "next",
+          "context"
+        ],
+        "title": "ClaimPage"
+      },
+      "ClaimSource": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "claimId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Claimid"
+          },
+          "source": {
+            "$ref": "#/components/schemas/Source"
+          },
+          "testRunId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Testrunid"
+          },
+          "runInvestigationId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Runinvestigationid"
+          },
+          "sourceLocator": {
+            "type": "string",
+            "title": "Sourcelocator"
+          },
+          "sourceExcerpt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sourceexcerpt"
+          },
+          "contextMismatch": {
+            "type": "boolean",
+            "title": "Contextmismatch"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "claimId",
+          "source",
+          "testRunId",
+          "runInvestigationId",
+          "sourceLocator",
+          "sourceExcerpt",
+          "contextMismatch",
+          "context"
+        ],
+        "title": "ClaimSource"
+      },
+      "ClaimSourcePage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ClaimSource"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Offset"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Limit"
+          },
+          "next": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit",
+          "next",
+          "context"
+        ],
+        "title": "ClaimSourcePage"
+      },
+      "CollectionLink": {
+        "properties": {
+          "href": {
+            "type": "string",
+            "title": "Href"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "href",
+          "total"
+        ],
+        "title": "CollectionLink"
+      },
+      "CompareRequest": {
+        "properties": {
+          "investigationIds": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 2,
+            "uniqueItems": true,
+            "title": "Investigationids"
+          },
+          "observationOffset": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Observationoffset",
+            "default": 0
+          },
+          "observationLimit": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Observationlimit",
+            "default": 20
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "investigationIds"
+        ],
+        "title": "CompareRequest"
+      },
+      "Comparison": {
+        "properties": {
+          "studies": {
+            "items": {
+              "$ref": "#/components/schemas/ComparisonStudy"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 2,
+            "title": "Studies"
+          },
+          "deltas": {
+            "type": "null",
+            "title": "Deltas"
+          },
+          "highlights": {
+            "type": "null",
+            "title": "Highlights"
+          },
+          "comparability": {
+            "type": "string",
+            "const": "not_established",
+            "title": "Comparability"
+          },
+          "unavailableFields": {
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "MISSING_SOURCE_DATA",
+                "UNSUPPORTED_MAPPING",
+                "VERIFICATION_NOT_ESTABLISHED",
+                "SCIENTIFIC_COMPARISON_NOT_APPROVED",
+                "NO_DENOMINATOR",
+                "ASSET_CONTRACT_PENDING"
+              ]
+            },
+            "type": "object",
+            "title": "Unavailablefields"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "studies",
+          "deltas",
+          "highlights",
+          "comparability",
+          "unavailableFields",
+          "context"
+        ],
+        "title": "Comparison"
+      },
+      "ComparisonStudy": {
+        "properties": {
+          "investigation": {
+            "$ref": "#/components/schemas/Investigation"
+          },
+          "observations": {
+            "$ref": "#/components/schemas/ObservationPage"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "investigation",
+          "observations",
+          "context"
+        ],
+        "title": "ComparisonStudy"
+      },
+      "Condition": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "testRunId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Testrunid"
+          },
+          "variable": {
+            "type": "string",
+            "title": "Variable"
+          },
+          "valueNumeric": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valuenumeric"
+          },
+          "valueText": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valuetext"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "dataStatus": {
+            "type": "string",
+            "title": "Datastatus"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "testRunId",
+          "variable",
+          "valueNumeric",
+          "valueText",
+          "unit",
+          "dataStatus",
+          "context"
+        ],
+        "title": "Condition"
+      },
+      "ConditionEvidence": {
+        "properties": {
+          "conditionId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Conditionid"
+          },
+          "runId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Runid"
+          },
+          "variable": {
+            "type": "string",
+            "title": "Variable"
+          },
+          "valueNumeric": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valuenumeric"
+          },
+          "valueText": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valuetext"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "dataStatus": {
+            "type": "string",
+            "title": "Datastatus"
+          },
+          "uncertainty": {
+            "type": "null",
+            "title": "Uncertainty"
+          },
+          "sourceLocator": {
+            "type": "null",
+            "title": "Sourcelocator"
+          },
+          "context": {
+            "$ref": "#/components/schemas/FixtureLabel"
+          }
+        },
+        "type": "object",
+        "required": [
+          "conditionId",
+          "runId",
+          "variable",
+          "valueNumeric",
+          "valueText",
+          "unit",
+          "dataStatus",
+          "context"
+        ],
+        "title": "ConditionEvidence"
+      },
+      "ConditionPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Condition"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Offset"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Limit"
+          },
+          "next": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit",
+          "next",
+          "context"
+        ],
+        "title": "ConditionPage"
+      },
+      "Context": {
+        "properties": {
+          "collectionId": {
+            "type": "string",
+            "title": "Collectionid"
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "synthetic",
+              "real",
+              "unknown"
+            ],
+            "title": "Origin"
+          },
+          "reviewState": {
+            "type": "string",
+            "enum": [
+              "unreviewed",
+              "curated",
+              "unknown"
+            ],
+            "title": "Reviewstate"
+          },
+          "caveats": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Caveats"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "collectionId",
+          "origin",
+          "reviewState",
+          "caveats"
+        ],
+        "title": "Context"
+      },
+      "Dashboard": {
+        "properties": {
+          "selection": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Selection"
+          },
+          "investigationCount": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Investigationcount"
+          },
+          "runCount": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Runcount"
+          },
+          "claimCount": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Claimcount"
+          },
+          "sourceCount": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Sourcecount"
+          },
+          "verifiedRunCount": {
+            "type": "null",
+            "title": "Verifiedruncount"
+          },
+          "sourceCoverage": {
+            "$ref": "#/components/schemas/app__schemas__api__models__Coverage"
+          },
+          "fuelDistribution": {
+            "type": "null",
+            "title": "Fueldistribution"
+          },
+          "facilityDistribution": {
+            "type": "null",
+            "title": "Facilitydistribution"
+          },
+          "gravityDistribution": {
+            "type": "null",
+            "title": "Gravitydistribution"
+          },
+          "featuredInvestigations": {
+            "items": {
+              "$ref": "#/components/schemas/Investigation"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "title": "Featuredinvestigations"
+          },
+          "unavailableFields": {
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "MISSING_SOURCE_DATA",
+                "UNSUPPORTED_MAPPING",
+                "VERIFICATION_NOT_ESTABLISHED",
+                "SCIENTIFIC_COMPARISON_NOT_APPROVED",
+                "NO_DENOMINATOR",
+                "ASSET_CONTRACT_PENDING"
+              ]
+            },
+            "type": "object",
+            "title": "Unavailablefields"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "selection",
+          "investigationCount",
+          "runCount",
+          "claimCount",
+          "sourceCount",
+          "verifiedRunCount",
+          "sourceCoverage",
+          "fuelDistribution",
+          "facilityDistribution",
+          "gravityDistribution",
+          "featuredInvestigations",
+          "unavailableFields",
+          "context"
+        ],
+        "title": "Dashboard"
+      },
+      "Dimension": {
+        "properties": {
+          "dimension": {
+            "type": "string",
+            "enum": [
+              "gravity",
+              "material",
+              "oxygen",
+              "pressure",
+              "airflow",
+              "combined"
+            ],
+            "title": "Dimension"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "support",
+              "mismatch",
+              "partial",
+              "unknown",
+              "unavailable"
+            ],
+            "title": "Status"
+          },
+          "reasonCodes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasoncodes"
+          },
+          "runId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Runid"
+          },
+          "conditionIds": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Conditionids",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "dimension",
+          "status",
+          "reasonCodes"
+        ],
+        "title": "Dimension"
+      },
+      "Error": {
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorError"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "error",
+          "context"
+        ],
+        "title": "Error"
+      },
+      "ErrorError": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "fields": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Fields"
+          },
+          "supportedValues": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Supportedvalues"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "fields",
+          "supportedValues"
+        ],
+        "title": "ErrorError"
+      },
+      "Evaluation": {
+        "properties": {
+          "scenario": {
+            "$ref": "#/components/schemas/Interpretation"
+          },
+          "context": {
+            "$ref": "#/components/schemas/EvidenceContext"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/Bindings"
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/app__schemas__api__scenarios__Coverage"
+          },
+          "rankings": {
+            "$ref": "#/components/schemas/Rankings"
+          },
+          "pillarEvidence": {
+            "$ref": "#/components/schemas/PillarEvidence"
+          }
+        },
+        "type": "object",
+        "required": [
+          "scenario",
+          "context",
+          "scope",
+          "coverage",
+          "rankings",
+          "pillarEvidence"
+        ],
+        "title": "Evaluation"
+      },
+      "EvaluationError": {
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/EvaluationErrorDetail"
+          },
+          "context": {
+            "$ref": "#/components/schemas/EvidenceContext"
+          }
+        },
+        "type": "object",
+        "required": [
+          "error",
+          "context"
+        ],
+        "title": "EvaluationError"
+      },
+      "EvaluationErrorDetail": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "INVALID_REQUEST",
+              "VERSION_CONFLICT",
+              "DATA_UNAVAILABLE",
+              "COLLECTION_SCOPE_INVALID",
+              "INTERNAL_ERROR"
+            ],
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "fields": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Fields",
+            "default": []
+          },
+          "supportedValues": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Supportedvalues",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "EvaluationErrorDetail"
+      },
+      "EvaluationRequest": {
+        "properties": {
+          "scenario": {
+            "$ref": "#/components/schemas/ScenarioInput"
+          },
+          "pillar": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "prevention",
+                  "detection",
+                  "suppression"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pillar"
+          },
+          "pages": {
+            "$ref": "#/components/schemas/Pages",
+            "default": {
+              "runOffset": 0,
+              "rankingOffset": 0,
+              "evidenceOffset": 0,
+              "limit": 20
+            }
+          },
+          "expectedBindings": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Bindings"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "scenario"
+        ],
+        "title": "EvaluationRequest",
+        "examples": [
+          {
+            "pages": {
+              "limit": 1
+            },
+            "scenario": {
+              "airflow": {
+                "unit": "cm/s",
+                "value": "0"
+              },
+              "gravity": {
+                "unit": "g",
+                "value": "0.00"
+              },
+              "material": {
+                "key": "TEST_MATERIAL_A"
+              },
+              "name": "TEST_ONLY zero gravity",
+              "oxygen": {
+                "meaning": "ambient_oxygen_fraction_percent",
+                "unit": "%",
+                "value": "21"
+              },
+              "pressure": {
+                "unit": "psia",
+                "value": "14.7"
+              }
+            }
+          }
+        ]
+      },
+      "EvidenceContext": {
+        "properties": {
+          "collectionId": {
+            "type": "string",
+            "title": "Collectionid"
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "synthetic",
+              "real",
+              "unknown"
+            ],
+            "title": "Origin"
+          },
+          "reviewState": {
+            "type": "string",
+            "enum": [
+              "unreviewed",
+              "unknown"
+            ],
+            "title": "Reviewstate"
+          },
+          "caveats": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Caveats"
+          }
+        },
+        "type": "object",
+        "required": [
+          "collectionId",
+          "origin",
+          "reviewState",
+          "caveats"
+        ],
+        "title": "EvidenceContext"
+      },
+      "Exchange": {
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/MessageOutput"
+          },
+          "assistant": {
+            "$ref": "#/components/schemas/MessageOutput"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user",
+          "assistant"
+        ],
+        "title": "Exchange"
+      },
+      "FixtureLabel": {
+        "properties": {
+          "collectionId": {
+            "type": "string",
+            "title": "Collectionid"
+          },
+          "datasetVersion": {
+            "type": "string",
+            "title": "Datasetversion"
+          },
+          "providerVersion": {
+            "type": "string",
+            "title": "Providerversion"
+          },
+          "origin": {
+            "type": "string",
+            "const": "synthetic",
+            "title": "Origin",
+            "default": "synthetic"
+          },
+          "reviewState": {
+            "type": "string",
+            "const": "unreviewed",
+            "title": "Reviewstate",
+            "default": "unreviewed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "collectionId",
+          "datasetVersion",
+          "providerVersion"
+        ],
+        "title": "FixtureLabel"
+      },
+      "Gravity": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,32})?$",
+            "title": "Value"
+          },
+          "unit": {
+            "type": "string",
+            "const": "g",
+            "title": "Unit"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "unit"
+        ],
+        "title": "Gravity"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "ok",
+            "title": "Status",
+            "default": "ok"
+          },
+          "service": {
+            "type": "string",
+            "const": "flameguard-ai-backend",
+            "title": "Service",
+            "default": "flameguard-ai-backend"
+          }
+        },
+        "type": "object",
+        "title": "HealthResponse"
+      },
+      "Interpretation": {
+        "properties": {
+          "original": {
+            "$ref": "#/components/schemas/ScenarioInput"
+          },
+          "digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Digest"
+          },
+          "fieldStates": {
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "omitted",
+                "null",
+                "supplied"
+              ]
+            },
+            "type": "object",
+            "title": "Fieldstates"
+          },
+          "unavailableFields": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "gravity",
+                "material",
+                "oxygen",
+                "pressure",
+                "airflow",
+                "combined"
+              ]
+            },
+            "type": "array",
+            "title": "Unavailablefields"
+          }
+        },
+        "type": "object",
+        "required": [
+          "original",
+          "digest",
+          "fieldStates",
+          "unavailableFields"
+        ],
+        "title": "Interpretation"
+      },
+      "Investigation": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "psiId": {
+            "type": "string",
+            "title": "Psiid"
+          },
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "researchPurpose": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Researchpurpose"
+          },
+          "platform": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Platform"
+          },
+          "tags": {
+            "$ref": "#/components/schemas/TagPage"
+          },
+          "unavailableFields": {
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "MISSING_SOURCE_DATA",
+                "UNSUPPORTED_MAPPING",
+                "VERIFICATION_NOT_ESTABLISHED",
+                "SCIENTIFIC_COMPARISON_NOT_APPROVED",
+                "NO_DENOMINATOR",
+                "ASSET_CONTRACT_PENDING"
+              ]
+            },
+            "type": "object",
+            "title": "Unavailablefields"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "psiId",
+          "slug",
+          "title",
+          "researchPurpose",
+          "platform",
+          "tags",
+          "unavailableFields",
+          "context"
+        ],
+        "title": "Investigation"
+      },
+      "InvestigationDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "psiId": {
+            "type": "string",
+            "title": "Psiid"
+          },
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "researchPurpose": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Researchpurpose"
+          },
+          "platform": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Platform"
+          },
+          "tags": {
+            "$ref": "#/components/schemas/TagPage"
+          },
+          "unavailableFields": {
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "MISSING_SOURCE_DATA",
+                "UNSUPPORTED_MAPPING",
+                "VERIFICATION_NOT_ESTABLISHED",
+                "SCIENTIFIC_COMPARISON_NOT_APPROVED",
+                "NO_DENOMINATOR",
+                "ASSET_CONTRACT_PENDING"
+              ]
+            },
+            "type": "object",
+            "title": "Unavailablefields"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          },
+          "runs": {
+            "$ref": "#/components/schemas/CollectionLink"
+          },
+          "sources": {
+            "$ref": "#/components/schemas/CollectionLink"
+          },
+          "claims": {
+            "$ref": "#/components/schemas/CollectionLink"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "psiId",
+          "slug",
+          "title",
+          "researchPurpose",
+          "platform",
+          "tags",
+          "unavailableFields",
+          "context",
+          "runs",
+          "sources",
+          "claims"
+        ],
+        "title": "InvestigationDetail"
+      },
+      "InvestigationIdentity": {
+        "properties": {
+          "investigationId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Investigationid"
+          },
+          "psiId": {
+            "type": "string",
+            "title": "Psiid"
+          },
+          "slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Slug"
+          }
+        },
+        "type": "object",
+        "required": [
+          "investigationId",
+          "psiId",
+          "slug"
+        ],
+        "title": "InvestigationIdentity"
+      },
+      "InvestigationPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Investigation"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Offset"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Limit"
+          },
+          "next": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit",
+          "next",
+          "context"
+        ],
+        "title": "InvestigationPage"
+      },
+      "Material": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$",
+            "title": "Key"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key"
+        ],
+        "title": "Material"
+      },
+      "Measurement": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "testRunId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Testrunid"
+          },
+          "observable": {
+            "type": "string",
+            "title": "Observable"
+          },
+          "measuredValue": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Measuredvalue"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "rawAssetRef": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rawassetref"
+          },
+          "uncertainty": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uncertainty"
+          },
+          "unavailableFields": {
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "MISSING_SOURCE_DATA",
+                "UNSUPPORTED_MAPPING",
+                "VERIFICATION_NOT_ESTABLISHED",
+                "SCIENTIFIC_COMPARISON_NOT_APPROVED",
+                "NO_DENOMINATOR",
+                "ASSET_CONTRACT_PENDING"
+              ]
+            },
+            "type": "object",
+            "title": "Unavailablefields"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "testRunId",
+          "observable",
+          "measuredValue",
+          "unit",
+          "rawAssetRef",
+          "uncertainty",
+          "unavailableFields",
+          "context"
+        ],
+        "title": "Measurement"
+      },
+      "MeasurementPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Measurement"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Offset"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Limit"
+          },
+          "next": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit",
+          "next",
+          "context"
+        ],
+        "title": "MeasurementPage"
+      },
+      "MessageOutput": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "answer": {
+            "$ref": "#/components/schemas/Answer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "role",
+          "created_at",
+          "answer"
+        ],
+        "title": "MessageOutput"
+      },
+      "MessagePage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MessageOutput"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "offset",
+          "limit"
+        ],
+        "title": "MessagePage"
+      },
+      "NextRequest": {
+        "properties": {
+          "pages": {
+            "$ref": "#/components/schemas/Pages"
+          },
+          "expectedBindings": {
+            "$ref": "#/components/schemas/Bindings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pages",
+          "expectedBindings"
+        ],
+        "title": "NextRequest"
+      },
+      "Observation": {
+        "properties": {
+          "measurement": {
+            "$ref": "#/components/schemas/Measurement"
+          },
+          "run": {
+            "$ref": "#/components/schemas/Run"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "measurement",
+          "run",
+          "context"
+        ],
+        "title": "Observation"
+      },
+      "ObservationPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Observation"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Offset"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Limit"
+          },
+          "next": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit",
+          "next",
+          "context"
+        ],
+        "title": "ObservationPage"
+      },
+      "OriginalClaim": {
+        "properties": {
+          "claimId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Claimid"
+          },
+          "claimText": {
+            "type": "string",
+            "title": "Claimtext"
+          },
+          "evidenceStatus": {
+            "type": "string",
+            "title": "Evidencestatus"
+          },
+          "reviewStatus": {
+            "type": "string",
+            "title": "Reviewstatus"
+          },
+          "limitation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limitation"
+          },
+          "context": {
+            "$ref": "#/components/schemas/FixtureLabel"
+          }
+        },
+        "type": "object",
+        "required": [
+          "claimId",
+          "claimText",
+          "evidenceStatus",
+          "reviewStatus",
+          "limitation",
+          "context"
+        ],
+        "title": "OriginalClaim"
+      },
+      "OriginalDocument": {
+        "properties": {
+          "sourceDocumentId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Sourcedocumentid"
+          },
+          "investigationId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Investigationid"
+          },
+          "sourceUrl": {
+            "type": "string",
+            "title": "Sourceurl"
+          },
+          "doi": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Doi"
+          },
+          "documentType": {
+            "type": "string",
+            "title": "Documenttype"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version"
+          },
+          "ingestionStatus": {
+            "type": "string",
+            "title": "Ingestionstatus"
+          },
+          "context": {
+            "$ref": "#/components/schemas/FixtureLabel"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sourceDocumentId",
+          "investigationId",
+          "sourceUrl",
+          "doi",
+          "documentType",
+          "version",
+          "ingestionStatus",
+          "context"
+        ],
+        "title": "OriginalDocument"
+      },
+      "Oxygen": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,32})?$",
+            "title": "Value"
+          },
+          "unit": {
+            "type": "string",
+            "const": "%",
+            "title": "Unit"
+          },
+          "meaning": {
+            "type": "string",
+            "enum": [
+              "ambient_oxygen_fraction_percent",
+              "oxidizer_oxygen_fraction_percent"
+            ],
+            "title": "Meaning"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "unit",
+          "meaning"
+        ],
+        "title": "Oxygen"
+      },
+      "Page": {
+        "properties": {
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "nextRequest": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NextRequest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "continuationLimited": {
+            "type": "boolean",
+            "title": "Continuationlimited"
+          }
+        },
+        "type": "object",
+        "required": [
+          "offset",
+          "limit",
+          "total",
+          "nextRequest",
+          "continuationLimited"
+        ],
+        "title": "Page"
+      },
+      "Pages": {
+        "properties": {
+          "runOffset": {
+            "type": "integer",
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Runoffset",
+            "default": 0
+          },
+          "rankingOffset": {
+            "type": "integer",
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Rankingoffset",
+            "default": 0
+          },
+          "evidenceOffset": {
+            "type": "integer",
+            "maximum": 1000000.0,
+            "minimum": 0.0,
+            "title": "Evidenceoffset",
+            "default": 0
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "default": 20
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Pages"
+      },
+      "PillarAssociation": {
+        "properties": {
+          "associationId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Associationid"
+          },
+          "pillar": {
+            "type": "string",
+            "enum": [
+              "prevention",
+              "detection",
+              "suppression"
+            ],
+            "title": "Pillar"
+          },
+          "claim": {
+            "$ref": "#/components/schemas/OriginalClaim"
+          },
+          "document": {
+            "$ref": "#/components/schemas/OriginalDocument"
+          },
+          "testRunId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Testrunid"
+          },
+          "runInvestigationId": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Runinvestigationid"
+          },
+          "sourceLocator": {
+            "type": "string",
+            "title": "Sourcelocator"
+          },
+          "sourceExcerpt": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sourceexcerpt"
+          },
+          "reasonCodes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasoncodes"
+          },
+          "context": {
+            "$ref": "#/components/schemas/FixtureLabel"
+          }
+        },
+        "type": "object",
+        "required": [
+          "associationId",
+          "pillar",
+          "claim",
+          "document",
+          "testRunId",
+          "runInvestigationId",
+          "sourceLocator",
+          "sourceExcerpt",
+          "reasonCodes",
+          "context"
+        ],
+        "title": "PillarAssociation"
+      },
+      "PillarEvidence": {
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "evaluated",
+              "unavailable",
+              "rejected"
+            ],
+            "title": "State"
+          },
+          "reasonCodes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasoncodes"
+          },
+          "groups": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PillarGroup"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Groups"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Page"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "state",
+          "reasonCodes"
+        ],
+        "title": "PillarEvidence"
+      },
+      "PillarGroup": {
+        "properties": {
+          "pillar": {
+            "type": "string",
+            "enum": [
+              "prevention",
+              "detection",
+              "suppression"
+            ],
+            "title": "Pillar"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PillarAssociation"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "reasonCodes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasoncodes"
+          },
+          "context": {
+            "$ref": "#/components/schemas/FixtureLabel"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pillar",
+          "total",
+          "items",
+          "reasonCodes",
+          "context"
+        ],
+        "title": "PillarGroup"
+      },
+      "Pressure": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]{1,32})?$",
+            "title": "Value"
+          },
+          "unit": {
+            "type": "string",
+            "const": "psia",
+            "title": "Unit"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "unit"
+        ],
+        "title": "Pressure"
+      },
+      "Question": {
+        "properties": {
+          "question": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "pattern": "\\S",
+            "title": "Question"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "question"
+        ],
+        "title": "Question"
+      },
+      "RankedInvestigation": {
+        "properties": {
+          "position": {
+            "type": "integer",
+            "title": "Position"
+          },
+          "rank": {
+            "type": "integer",
+            "title": "Rank"
+          },
+          "investigation": {
+            "$ref": "#/components/schemas/InvestigationIdentity"
+          },
+          "externalExperimentId": {
+            "type": "string",
+            "title": "Externalexperimentid"
+          },
+          "scenarioRelevanceScore": {
+            "type": "string",
+            "title": "Scenariorelevancescore"
+          },
+          "catalogUsefulnessScore": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Catalogusefulnessscore"
+          },
+          "components": {
+            "items": {
+              "$ref": "#/components/schemas/RankingComponent"
+            },
+            "type": "array",
+            "title": "Components"
+          },
+          "rationale": {
+            "type": "string",
+            "title": "Rationale"
+          },
+          "context": {
+            "$ref": "#/components/schemas/FixtureLabel"
+          }
+        },
+        "type": "object",
+        "required": [
+          "position",
+          "rank",
+          "investigation",
+          "externalExperimentId",
+          "scenarioRelevanceScore",
+          "catalogUsefulnessScore",
+          "components",
+          "rationale",
+          "context"
+        ],
+        "title": "RankedInvestigation"
+      },
+      "RankingComponent": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "provenance": {
+            "type": "string",
+            "title": "Provenance"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "value",
+          "provenance"
+        ],
+        "title": "RankingComponent"
+      },
+      "Rankings": {
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "evaluated",
+              "unavailable",
+              "rejected"
+            ],
+            "title": "State"
+          },
+          "reasonCodes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasoncodes"
+          },
+          "items": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/RankedInvestigation"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Items"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Page"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "deliveryId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deliveryid"
+          },
+          "contractVersion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contractversion"
+          },
+          "algorithmVersion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Algorithmversion"
+          },
+          "datasetVersion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Datasetversion"
+          },
+          "identityVersion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Identityversion"
+          },
+          "mappingVersion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mappingversion"
+          },
+          "materialKey": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Materialkey"
+          },
+          "applicability": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Applicability"
+          },
+          "caveats": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Caveats",
+            "default": []
+          },
+          "scales": {
+            "items": {
+              "$ref": "#/components/schemas/ScoreScale"
+            },
+            "type": "array",
+            "title": "Scales",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "state",
+          "reasonCodes"
+        ],
+        "title": "Rankings"
+      },
+      "ReadinessResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ready",
+              "unavailable"
+            ],
+            "title": "Status"
+          },
+          "service": {
+            "type": "string",
+            "const": "flameguard-ai-backend",
+            "title": "Service",
+            "default": "flameguard-ai-backend"
+          },
+          "database": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "unavailable"
+            ],
+            "title": "Database"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "database"
+        ],
+        "title": "ReadinessResponse"
+      },
+      "Run": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "investigationId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Investigationid"
+          },
+          "externalRunKey": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Externalrunkey"
+          },
+          "materialType": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Materialtype"
+          },
+          "sampleGeometry": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Samplegeometry"
+          },
+          "gravity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gravity"
+          },
+          "verification": {
+            "type": "string",
+            "const": "unknown",
+            "title": "Verification"
+          },
+          "unavailableFields": {
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "MISSING_SOURCE_DATA",
+                "UNSUPPORTED_MAPPING",
+                "VERIFICATION_NOT_ESTABLISHED",
+                "SCIENTIFIC_COMPARISON_NOT_APPROVED",
+                "NO_DENOMINATOR",
+                "ASSET_CONTRACT_PENDING"
+              ]
+            },
+            "type": "object",
+            "title": "Unavailablefields"
+          },
+          "conditions": {
+            "$ref": "#/components/schemas/CollectionLink"
+          },
+          "measurements": {
+            "$ref": "#/components/schemas/CollectionLink"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "investigationId",
+          "externalRunKey",
+          "materialType",
+          "sampleGeometry",
+          "gravity",
+          "verification",
+          "unavailableFields",
+          "conditions",
+          "measurements",
+          "context"
+        ],
+        "title": "Run"
+      },
+      "RunEvaluation": {
+        "properties": {
+          "run": {
+            "$ref": "#/components/schemas/RunIdentity"
+          },
+          "dimensions": {
+            "items": {
+              "$ref": "#/components/schemas/Dimension"
+            },
+            "type": "array",
+            "maxItems": 6,
+            "minItems": 6,
+            "title": "Dimensions"
+          },
+          "conditions": {
+            "items": {
+              "$ref": "#/components/schemas/ConditionEvidence"
+            },
+            "type": "array",
+            "title": "Conditions"
+          },
+          "requiredConditionsComplete": {
+            "type": "boolean",
+            "title": "Requiredconditionscomplete"
+          },
+          "context": {
+            "$ref": "#/components/schemas/FixtureLabel"
+          }
+        },
+        "type": "object",
+        "required": [
+          "run",
+          "dimensions",
+          "conditions",
+          "requiredConditionsComplete",
+          "context"
+        ],
+        "title": "RunEvaluation"
+      },
+      "RunIdentity": {
+        "properties": {
+          "runId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Runid"
+          },
+          "externalRunKey": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Externalrunkey"
+          },
+          "investigation": {
+            "$ref": "#/components/schemas/InvestigationIdentity"
+          },
+          "materialType": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Materialtype"
+          },
+          "sampleGeometry": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Samplegeometry"
+          },
+          "gravity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gravity"
+          }
+        },
+        "type": "object",
+        "required": [
+          "runId",
+          "externalRunKey",
+          "investigation",
+          "materialType",
+          "sampleGeometry",
+          "gravity"
+        ],
+        "title": "RunIdentity"
+      },
+      "RunPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Run"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Offset"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Limit"
+          },
+          "next": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit",
+          "next",
+          "context"
+        ],
+        "title": "RunPage"
+      },
+      "ScenarioInput": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "environmentLabel": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Environmentlabel"
+          },
+          "presetKey": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Presetkey"
+          },
+          "material": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Material"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "gravity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Gravity"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "oxygen": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Oxygen"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pressure": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Pressure"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "airflow": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Airflow"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ScenarioInput"
+      },
+      "ScoreScale": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "scenario_relevance",
+              "catalog_usefulness",
+              "fixture_component"
+            ],
+            "title": "Kind"
+          },
+          "minimum": {
+            "type": "string",
+            "title": "Minimum"
+          },
+          "maximum": {
+            "type": "string",
+            "title": "Maximum"
+          },
+          "meaning": {
+            "type": "string",
+            "title": "Meaning"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "minimum",
+          "maximum",
+          "meaning"
+        ],
+        "title": "ScoreScale"
+      },
+      "SessionInput": {
+        "properties": {
+          "investigation_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Investigation Id"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "SessionInput"
+      },
+      "SessionOutput": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "investigation_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Investigation Id"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          },
+          "privacy": {
+            "type": "string",
+            "title": "Privacy",
+            "default": "Public research demo. Session ID holders can access history for 24 hours. Rows are retained pending operator cleanup."
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "investigation_id",
+          "title",
+          "created_at",
+          "expires_at"
+        ],
+        "title": "SessionOutput"
+      },
+      "Source": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "investigationId": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Investigationid"
+          },
+          "sourceUrl": {
+            "type": "string",
+            "title": "Sourceurl"
+          },
+          "doi": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Doi"
+          },
+          "documentType": {
+            "type": "string",
+            "title": "Documenttype"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version"
+          },
+          "ingestionStatus": {
+            "type": "string",
+            "title": "Ingestionstatus"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "investigationId",
+          "sourceUrl",
+          "doi",
+          "documentType",
+          "version",
+          "ingestionStatus",
+          "context"
+        ],
+        "title": "Source"
+      },
+      "SourcePage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Source"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Offset"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Limit"
+          },
+          "next": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit",
+          "next",
+          "context"
+        ],
+        "title": "SourcePage"
+      },
+      "Tag": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "slug": {
+            "type": "string",
+            "title": "Slug"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "slug",
+          "label",
+          "category",
+          "context"
+        ],
+        "title": "Tag"
+      },
+      "TagPage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Tag"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Offset"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Limit"
+          },
+          "next": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next"
+          },
+          "context": {
+            "$ref": "#/components/schemas/Context"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit",
+          "next",
+          "context"
+        ],
+        "title": "TagPage"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "app__schemas__api__models__Coverage": {
+        "properties": {
+          "numerator": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Numerator"
+          },
+          "denominator": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Denominator"
+          },
+          "ratio": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ratio"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "numerator",
+          "denominator",
+          "ratio"
+        ],
+        "title": "Coverage"
+      },
+      "app__schemas__api__scenarios__Coverage": {
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "evaluated",
+              "unavailable",
+              "rejected"
+            ],
+            "title": "State"
+          },
+          "reasonCodes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasoncodes"
+          },
+          "items": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/RunEvaluation"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Items"
+          },
+          "dimensions": {
+            "items": {
+              "$ref": "#/components/schemas/Dimension"
+            },
+            "type": "array",
+            "maxItems": 6,
+            "minItems": 6,
+            "title": "Dimensions"
+          },
+          "page": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Page"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "examinedRuns": {
+            "type": "integer",
+            "title": "Examinedruns"
+          },
+          "requiredConditionsComplete": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requiredconditionscomplete"
+          },
+          "collectionTraversalComplete": {
+            "type": "boolean",
+            "title": "Collectiontraversalcomplete"
+          },
+          "summaryScope": {
+            "type": "string",
+            "const": "examined_page",
+            "title": "Summaryscope",
+            "default": "examined_page"
+          },
+          "collectionConclusion": {
+            "type": "null",
+            "title": "Collectionconclusion"
+          }
+        },
+        "type": "object",
+        "required": [
+          "state",
+          "reasonCodes",
+          "items",
+          "dimensions",
+          "page",
+          "examinedRuns",
+          "requiredConditionsComplete",
+          "collectionTraversalComplete"
+        ],
+        "title": "Coverage"
+      }
+    }
+  }
+}

@@ -7,6 +7,7 @@ from app.services.demo_manifest import canonical, unique_rows_by_id
 from app.services.errors import Phase4Error
 
 ADMISSION_BATCH_SIZE = 64
+RUNTIME_TABLES = frozenset({"chat_session", "chat_message", "message_citation"})
 
 
 async def database_identity(session):
@@ -31,12 +32,18 @@ async def database_identity(session):
     )
 
 
-async def inspect_fixture(session, manifest, *, allow_subset=False, content_hash=None):
+async def inspect_fixture(
+    session, manifest, *, allow_subset=False, content_hash=None, runtime_tables=frozenset()
+):
     """Exact read-side membership validation, including unused approved tables."""
     # Validate the whole manifest before SQL or any UUID-keyed lookup can lose rows.
     indexed = {name: unique_rows_by_id(rows) for name, rows in manifest["tables"].items()}
     missing = {}
     for table in Base.metadata.sorted_tables:
+        if table.name in runtime_tables:
+            if indexed[table.name]:
+                raise Phase4Error("DATASET_CONFLICT")
+            continue
         expected = indexed[table.name]
         # Server-side cursor: DB content is never buffered as a whole table.
         # Remove matched identities, keeping only the already-loaded manifest.
